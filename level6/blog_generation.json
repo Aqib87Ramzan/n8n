@@ -1,0 +1,6794 @@
+{
+  "name": "blog_generation",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        -16
+      ],
+      "id": "2fd35193-72ce-4b5e-b26d-3db50bf3536e",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1lsNlHYNvDUd6bQlwLyopayOIBUlK-lVf5QDC7Il03PA",
+          "mode": "list",
+          "cachedResultName": "blogs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lsNlHYNvDUd6bQlwLyopayOIBUlK-lVf5QDC7Il03PA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1lsNlHYNvDUd6bQlwLyopayOIBUlK-lVf5QDC7Il03PA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -144,
+        -16
+      ],
+      "id": "2c11aebb-68ca-4529-85f5-0d123b3ef9e0",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r7yeG8ACG7tLO45l",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Language: {{$json[\"Language\"]}}\nCity: {{$json[\"City\"]}}\nTopic: {{$json[\"Topic\"]}}\nPrimary Keyword: {{$json[\"Keyword\"]}}\n\nWrite a 700–900 word blog post in the given Language, focused on the Topic for the specified City.\n- Use the Primary Keyword naturally 3–5 times.\n- Include H1/H2/H3 headings, short paragraphs, bullet lists where helpful.\n- Add a concise intro, actionable tips, and a conclusion with a call to action for local buyers/sellers/relocators (as relevant).\n- Avoid generic fluff; be specific to {{$json[\"City\"]}}.\n- Return ONLY Markdown (no extra JSON or commentary).\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        0
+      ],
+      "id": "1a8fd5b5-8b66-45d4-a554-4950a0df1664",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        368,
+        224
+      ],
+      "id": "6f56d0a0-fd95-42a1-9b2f-ab60d3b7a9a3",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Z6srxLg2SOj9CRZF",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        64,
+        -16
+      ],
+      "id": "34cb37c7-722b-4edb-9183-d7c620c13122",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.unsplash.com/photos/random?query={{ $('Loop Over Items').item.json.Keyword }}&orientation=landscape&client_id=Y09IG5g93KqPRhGIMQDUuWVt9AG893LeiaGmwuzW6lE\n\n\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        864,
+        0
+      ],
+      "id": "331ebaa5-d65c-4e03-8f41-f8fa521f7da8",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {
+    "Get row(s) in sheet": [
+      {
+        "json": {
+          "row_number": 2,
+          "Language": "EN",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Affordable homes in Los Angeles",
+          "Group ID": 1
+        }
+      },
+      {
+        "json": {
+          "row_number": 3,
+          "Language": "DE",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Erschwingliche Häuser in Los Angeles",
+          "Group ID": 1
+        }
+      },
+      {
+        "json": {
+          "row_number": 4,
+          "Language": "FR",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons abordables à Los Angeles",
+          "Group ID": 1
+        }
+      },
+      {
+        "json": {
+          "row_number": 5,
+          "Language": "ZH",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶经济适用房",
+          "Group ID": 1
+        }
+      },
+      {
+        "json": {
+          "row_number": 6,
+          "Language": "AR",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل بأسعار معقولة في لوس أنجلوس",
+          "Group ID": 1
+        }
+      },
+      {
+        "json": {
+          "row_number": 7,
+          "Language": "ES",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas asequibles en Los Angeles",
+          "Group ID": 1
+        }
+      },
+      {
+        "json": {
+          "row_number": 8,
+          "Language": "EN",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Home selling tips in San Diego",
+          "Group ID": 2
+        }
+      },
+      {
+        "json": {
+          "row_number": 9,
+          "Language": "DE",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Hausverkaufstipps in San Diego",
+          "Group ID": 2
+        }
+      },
+      {
+        "json": {
+          "row_number": 10,
+          "Language": "FR",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Conseils pour vendre une maison à San Diego",
+          "Group ID": 2
+        }
+      },
+      {
+        "json": {
+          "row_number": 11,
+          "Language": "ZH",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售技巧",
+          "Group ID": 2
+        }
+      },
+      {
+        "json": {
+          "row_number": 12,
+          "Language": "AR",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "نصائح لبيع منزل في سان دييغو",
+          "Group ID": 2
+        }
+      },
+      {
+        "json": {
+          "row_number": 13,
+          "Language": "ES",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Consejos para vender una casa en San Diego",
+          "Group ID": 2
+        }
+      },
+      {
+        "json": {
+          "row_number": 14,
+          "Language": "EN",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating to Orange County guide",
+          "Group ID": 3
+        }
+      },
+      {
+        "json": {
+          "row_number": 15,
+          "Language": "DE",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Leitfaden für den Umzug nach Orange County",
+          "Group ID": 3
+        }
+      },
+      {
+        "json": {
+          "row_number": 16,
+          "Language": "FR",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Guide pour déménager à Orange County",
+          "Group ID": 3
+        }
+      },
+      {
+        "json": {
+          "row_number": 17,
+          "Language": "ZH",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "橙县搬迁指南",
+          "Group ID": 3
+        }
+      },
+      {
+        "json": {
+          "row_number": 18,
+          "Language": "AR",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "دليل الانتقال إلى مدينة أورانج",
+          "Group ID": 3
+        }
+      },
+      {
+        "json": {
+          "row_number": 19,
+          "Language": "ES",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Guía para mudarse a Orange County",
+          "Group ID": 3
+        }
+      },
+      {
+        "json": {
+          "row_number": 20,
+          "Language": "EN",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Luxury homes for sale in Los Angeles",
+          "Group ID": 4
+        }
+      },
+      {
+        "json": {
+          "row_number": 21,
+          "Language": "DE",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Luxuswohnungen zum Verkauf in Los Angeles",
+          "Group ID": 4
+        }
+      },
+      {
+        "json": {
+          "row_number": 22,
+          "Language": "FR",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons de luxe à vendre à Los Angeles",
+          "Group ID": 4
+        }
+      },
+      {
+        "json": {
+          "row_number": 23,
+          "Language": "ZH",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶豪华住宅出售",
+          "Group ID": 4
+        }
+      },
+      {
+        "json": {
+          "row_number": 24,
+          "Language": "AR",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل فاخرة للبيع في لوس أنجلوس",
+          "Group ID": 4
+        }
+      },
+      {
+        "json": {
+          "row_number": 25,
+          "Language": "ES",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas de lujo en venta en Los Angeles",
+          "Group ID": 4
+        }
+      },
+      {
+        "json": {
+          "row_number": 26,
+          "Language": "EN",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling a luxury home in San Diego",
+          "Group ID": 5
+        }
+      },
+      {
+        "json": {
+          "row_number": 27,
+          "Language": "DE",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf eines Luxushauses in San Diego",
+          "Group ID": 5
+        }
+      },
+      {
+        "json": {
+          "row_number": 28,
+          "Language": "FR",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre une maison de luxe à San Diego",
+          "Group ID": 5
+        }
+      },
+      {
+        "json": {
+          "row_number": 29,
+          "Language": "ZH",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥豪华住宅出售",
+          "Group ID": 5
+        }
+      },
+      {
+        "json": {
+          "row_number": 30,
+          "Language": "AR",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع منزل فاخر في سان دييغو",
+          "Group ID": 5
+        }
+      },
+      {
+        "json": {
+          "row_number": 31,
+          "Language": "ES",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender una casa de lujo en San Diego",
+          "Group ID": 5
+        }
+      },
+      {
+        "json": {
+          "row_number": 32,
+          "Language": "EN",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Best areas for relocating to Orange County",
+          "Group ID": 6
+        }
+      },
+      {
+        "json": {
+          "row_number": 33,
+          "Language": "DE",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Beste Gegenden für den Umzug nach Orange County",
+          "Group ID": 6
+        }
+      },
+      {
+        "json": {
+          "row_number": 34,
+          "Language": "FR",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Meilleurs quartiers pour déménager à Orange County",
+          "Group ID": 6
+        }
+      },
+      {
+        "json": {
+          "row_number": 35,
+          "Language": "ZH",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "橙县搬迁的最佳区域",
+          "Group ID": 6
+        }
+      },
+      {
+        "json": {
+          "row_number": 36,
+          "Language": "AR",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "أفضل المناطق للانتقال إلى مدينة أورانج",
+          "Group ID": 6
+        }
+      },
+      {
+        "json": {
+          "row_number": 37,
+          "Language": "ES",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Mejores áreas para mudarse a Orange County",
+          "Group ID": 6
+        }
+      },
+      {
+        "json": {
+          "row_number": 38,
+          "Language": "EN",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Buying a fixer-upper in Los Angeles",
+          "Group ID": 7
+        }
+      },
+      {
+        "json": {
+          "row_number": 39,
+          "Language": "DE",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Kauf eines Renovierungsobjekts in Los Angeles",
+          "Group ID": 7
+        }
+      },
+      {
+        "json": {
+          "row_number": 40,
+          "Language": "FR",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Acheter une maison à rénover à Los Angeles",
+          "Group ID": 7
+        }
+      },
+      {
+        "json": {
+          "row_number": 41,
+          "Language": "ZH",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "在洛杉矶购买待翻新房屋",
+          "Group ID": 7
+        }
+      },
+      {
+        "json": {
+          "row_number": 42,
+          "Language": "AR",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "شراء منزل بحاجة للتجديد في لوس أنجلوس",
+          "Group ID": 7
+        }
+      },
+      {
+        "json": {
+          "row_number": 43,
+          "Language": "ES",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Comprar una casa para renovar en Los Angeles",
+          "Group ID": 7
+        }
+      },
+      {
+        "json": {
+          "row_number": 44,
+          "Language": "EN",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Preparing your San Diego home for sale",
+          "Group ID": 8
+        }
+      },
+      {
+        "json": {
+          "row_number": 45,
+          "Language": "DE",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Vorbereitung Ihres San Diego Hauses für den Verkauf",
+          "Group ID": 8
+        }
+      },
+      {
+        "json": {
+          "row_number": 46,
+          "Language": "FR",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Préparer votre maison à San Diego pour la vente",
+          "Group ID": 8
+        }
+      },
+      {
+        "json": {
+          "row_number": 47,
+          "Language": "ZH",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售准备",
+          "Group ID": 8
+        }
+      },
+      {
+        "json": {
+          "row_number": 48,
+          "Language": "AR",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "تحضير منزلك في سان دييغو للبيع",
+          "Group ID": 8
+        }
+      },
+      {
+        "json": {
+          "row_number": 49,
+          "Language": "ES",
+          "City": "San Diego",
+          "Topic": "Selling",
+          "Keyword": "Preparar tu casa en San Diego para la venta",
+          "Group ID": 8
+        }
+      },
+      {
+        "json": {
+          "row_number": 50,
+          "Language": "EN",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating to Orange County for families",
+          "Group ID": 9
+        }
+      },
+      {
+        "json": {
+          "row_number": 51,
+          "Language": "DE",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug nach Orange County für Familien",
+          "Group ID": 9
+        }
+      },
+      {
+        "json": {
+          "row_number": 52,
+          "Language": "FR",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager à Orange County pour les familles",
+          "Group ID": 9
+        }
+      },
+      {
+        "json": {
+          "row_number": 53,
+          "Language": "ZH",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "橙县家庭搬迁",
+          "Group ID": 9
+        }
+      },
+      {
+        "json": {
+          "row_number": 54,
+          "Language": "AR",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال إلى مدينة أورانج للعائلات",
+          "Group ID": 9
+        }
+      },
+      {
+        "json": {
+          "row_number": 55,
+          "Language": "ES",
+          "City": "Orange County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse a Orange County para familias",
+          "Group ID": 9
+        }
+      },
+      {
+        "json": {
+          "row_number": 56,
+          "Language": "EN",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Buying a home with a pool in Los Angeles",
+          "Group ID": 10
+        }
+      },
+      {
+        "json": {
+          "row_number": 57,
+          "Language": "DE",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Haus mit Pool in Los Angeles kaufen",
+          "Group ID": 10
+        }
+      },
+      {
+        "json": {
+          "row_number": 58,
+          "Language": "FR",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Acheter une maison avec piscine à Los Angeles",
+          "Group ID": 10
+        }
+      },
+      {
+        "json": {
+          "row_number": 59,
+          "Language": "ZH",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "在洛杉矶购买带泳池的房屋",
+          "Group ID": 10
+        }
+      },
+      {
+        "json": {
+          "row_number": 60,
+          "Language": "AR",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "شراء منزل مع مسبح في لوس أنجلوس",
+          "Group ID": 10
+        }
+      },
+      {
+        "json": {
+          "row_number": 61,
+          "Language": "ES",
+          "City": "Los Angeles",
+          "Topic": "Buying",
+          "Keyword": "Comprar una casa con piscina en Los Angeles",
+          "Group ID": 10
+        }
+      },
+      {
+        "json": {
+          "row_number": 62,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Eco-friendly_homes_for_sale_in_Los_Angeles",
+          "Group ID": 11
+        }
+      },
+      {
+        "json": {
+          "row_number": 63,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Ökofreundliche_Häuser_zum_Verkauf_in_Los_Angeles",
+          "Group ID": 11
+        }
+      },
+      {
+        "json": {
+          "row_number": 64,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_écologiques_à_vendre_à_Los_Angeles",
+          "Group ID": 11
+        }
+      },
+      {
+        "json": {
+          "row_number": 65,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶环保住宅出售",
+          "Group ID": 11
+        }
+      },
+      {
+        "json": {
+          "row_number": 66,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_صديقة_للبيئة_للبيع_في_لوس_أنجلوس",
+          "Group ID": 11
+        }
+      },
+      {
+        "json": {
+          "row_number": 67,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_ecoamigables_en_venta_en_Los_Angeles",
+          "Group ID": 11
+        }
+      },
+      {
+        "json": {
+          "row_number": 68,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Pricing_your_San_Diego_home_for_sale",
+          "Group ID": 12
+        }
+      },
+      {
+        "json": {
+          "row_number": 69,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Preisgestaltung_Ihres_San_Diego_Hauses_für_den_Verkauf",
+          "Group ID": 12
+        }
+      },
+      {
+        "json": {
+          "row_number": 70,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Fixer_le_prix_de_votre_maison_à_San_Diego_pour_la_vente",
+          "Group ID": 12
+        }
+      },
+      {
+        "json": {
+          "row_number": 71,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售定价",
+          "Group ID": 12
+        }
+      },
+      {
+        "json": {
+          "row_number": 72,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تسعير_منزلك_في_سان_دييغو_للبيع",
+          "Group ID": 12
+        }
+      },
+      {
+        "json": {
+          "row_number": 73,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Fijar_el_precio_de_tu_casa_en_San_Diego_para_la_venta",
+          "Group ID": 12
+        }
+      },
+      {
+        "json": {
+          "row_number": 74,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Affordable_relocation_to_Orange_County",
+          "Group ID": 13
+        }
+      },
+      {
+        "json": {
+          "row_number": 75,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Erschwinglicher_Umzug_nach_Orange_County",
+          "Group ID": 13
+        }
+      },
+      {
+        "json": {
+          "row_number": 76,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménagement_abordable_à_Orange_County",
+          "Group ID": 13
+        }
+      },
+      {
+        "json": {
+          "row_number": 77,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县经济搬迁",
+          "Group ID": 13
+        }
+      },
+      {
+        "json": {
+          "row_number": 78,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_بأسعار_معقولة_إلى_مدينة_أورانج",
+          "Group ID": 13
+        }
+      },
+      {
+        "json": {
+          "row_number": 79,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudanza_asequible_a_Orange_County",
+          "Group ID": 13
+        }
+      },
+      {
+        "json": {
+          "row_number": 80,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Investment_properties_in_Los_Angeles",
+          "Group ID": 14
+        }
+      },
+      {
+        "json": {
+          "row_number": 81,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Investitionsimmobilien_in_Los_Angeles",
+          "Group ID": 14
+        }
+      },
+      {
+        "json": {
+          "row_number": 82,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Propriétés_d’investissement_à_Los_Angeles",
+          "Group ID": 14
+        }
+      },
+      {
+        "json": {
+          "row_number": 83,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶投资物业",
+          "Group ID": 14
+        }
+      },
+      {
+        "json": {
+          "row_number": 84,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "عقارات_استثمارية_في_لوس_أنجلوس",
+          "Group ID": 14
+        }
+      },
+      {
+        "json": {
+          "row_number": 85,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Propiedades_de_inversión_en_Los_Angeles",
+          "Group ID": 14
+        }
+      },
+      {
+        "json": {
+          "row_number": 86,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_condo_quickly",
+          "Group ID": 15
+        }
+      },
+      {
+        "json": {
+          "row_number": 87,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Schneller_Verkauf_Ihrer_San_Diego_Eigentumswohnung",
+          "Group ID": 15
+        }
+      },
+      {
+        "json": {
+          "row_number": 88,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_rapidement_votre_condo_à_San_Diego",
+          "Group ID": 15
+        }
+      },
+      {
+        "json": {
+          "row_number": 89,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "快速出售圣地亚哥公寓",
+          "Group ID": 15
+        }
+      },
+      {
+        "json": {
+          "row_number": 90,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_شقتك_في_سان_دييغو_بسرعة",
+          "Group ID": 15
+        }
+      },
+      {
+        "json": {
+          "row_number": 91,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_rápidamente_tu_condominio_en_San_Diego",
+          "Group ID": 15
+        }
+      },
+      {
+        "json": {
+          "row_number": 92,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_professionals",
+          "Group ID": 16
+        }
+      },
+      {
+        "json": {
+          "row_number": 93,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Berufstätige",
+          "Group ID": 16
+        }
+      },
+      {
+        "json": {
+          "row_number": 94,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_professionnels",
+          "Group ID": 16
+        }
+      },
+      {
+        "json": {
+          "row_number": 95,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县专业人士搬迁",
+          "Group ID": 16
+        }
+      },
+      {
+        "json": {
+          "row_number": 96,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للمحترفين",
+          "Group ID": 16
+        }
+      },
+      {
+        "json": {
+          "row_number": 97,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_profesionales",
+          "Group ID": 16
+        }
+      },
+      {
+        "json": {
+          "row_number": 98,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Buying_a_historic_home_in_Los_Angeles",
+          "Group ID": 17
+        }
+      },
+      {
+        "json": {
+          "row_number": 99,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Kauf_eines_historischen_Hauses_in_Los_Angeles",
+          "Group ID": 17
+        }
+      },
+      {
+        "json": {
+          "row_number": 100,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Acheter_une_maison_historique_à_Los_Angeles",
+          "Group ID": 17
+        }
+      },
+      {
+        "json": {
+          "row_number": 101,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "在洛杉矶购买历史住宅",
+          "Group ID": 17
+        }
+      },
+      {
+        "json": {
+          "row_number": 102,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "شراء_منزل_تاريخي_في_لوس_أنجلوس",
+          "Group ID": 17
+        }
+      },
+      {
+        "json": {
+          "row_number": 103,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Comprar_una_casa_histórica_en_Los_Angeles",
+          "Group ID": 17
+        }
+      },
+      {
+        "json": {
+          "row_number": 104,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Marketing_your_San_Diego_home_for_sale",
+          "Group ID": 18
+        }
+      },
+      {
+        "json": {
+          "row_number": 105,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vermarktung_Ihres_San_Diego_Hauses_für_den_Verkauf",
+          "Group ID": 18
+        }
+      },
+      {
+        "json": {
+          "row_number": 106,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Commercialiser_votre_maison_à_San_Diego_pour_la_vente",
+          "Group ID": 18
+        }
+      },
+      {
+        "json": {
+          "row_number": 107,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售的营销",
+          "Group ID": 18
+        }
+      },
+      {
+        "json": {
+          "row_number": 108,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تسويق_منزلك_في_سان_دييغو_للبيع",
+          "Group ID": 18
+        }
+      },
+      {
+        "json": {
+          "row_number": 109,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Comercializar_tu_casa_en_San_Diego_para_la_venta",
+          "Group ID": 18
+        }
+      },
+      {
+        "json": {
+          "row_number": 110,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Family-friendly_relocation_to_Orange_County",
+          "Group ID": 19
+        }
+      },
+      {
+        "json": {
+          "row_number": 111,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Familienfreundlicher_Umzug_nach_Orange_County",
+          "Group ID": 19
+        }
+      },
+      {
+        "json": {
+          "row_number": 112,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménagement_familial_à_Orange_County",
+          "Group ID": 19
+        }
+      },
+      {
+        "json": {
+          "row_number": 113,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县家庭友好搬迁",
+          "Group ID": 19
+        }
+      },
+      {
+        "json": {
+          "row_number": 114,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_المناسب_للعائلات_إلى_مدينة_أورانج",
+          "Group ID": 19
+        }
+      },
+      {
+        "json": {
+          "row_number": 115,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudanza_amigable_para_familias_a_Orange_County",
+          "Group ID": 19
+        }
+      },
+      {
+        "json": {
+          "row_number": 116,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Buying_a_smart_home_in_Los_Angeles",
+          "Group ID": 20
+        }
+      },
+      {
+        "json": {
+          "row_number": 117,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Kauf_eines_smarte_Hauses_in_Los_Angeles",
+          "Group ID": 20
+        }
+      },
+      {
+        "json": {
+          "row_number": 118,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Acheter_une_maison_intelligente_à_Los_Angeles",
+          "Group ID": 20
+        }
+      },
+      {
+        "json": {
+          "row_number": 119,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "在洛杉矶购买智能住宅",
+          "Group ID": 20
+        }
+      },
+      {
+        "json": {
+          "row_number": 120,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "شراء_منزل_ذكي_في_لوس_أنجلوس",
+          "Group ID": 20
+        }
+      },
+      {
+        "json": {
+          "row_number": 121,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Comprar_una_casa_inteligente_en_Los_Angeles",
+          "Group ID": 20
+        }
+      },
+      {
+        "json": {
+          "row_number": 122,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Pet-friendly_homes_for_sale_in_Los_Angeles",
+          "Group ID": 21
+        }
+      },
+      {
+        "json": {
+          "row_number": 123,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Haustierfreundliche_Häuser_zum_Verkauf_in_Los_Angeles",
+          "Group ID": 21
+        }
+      },
+      {
+        "json": {
+          "row_number": 124,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_ adaptées_aux_animaux_à_vendre_à_Los_Angeles",
+          "Group ID": 21
+        }
+      },
+      {
+        "json": {
+          "row_number": 125,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶宠物友好住宅出售",
+          "Group ID": 21
+        }
+      },
+      {
+        "json": {
+          "row_number": 126,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_صديقة_للحيوانات_للبيع_في_لوس_أنجلوس",
+          "Group ID": 21
+        }
+      },
+      {
+        "json": {
+          "row_number": 127,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_aptas_para_mascotas_en_venta_en_Los_Angeles",
+          "Group ID": 21
+        }
+      },
+      {
+        "json": {
+          "row_number": 128,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Avoiding_common_mistakes_when_selling_in_San_Diego",
+          "Group ID": 22
+        }
+      },
+      {
+        "json": {
+          "row_number": 129,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vermeidung_häufiger_Fehler_beim_Verkauf_in_San_Diego",
+          "Group ID": 22
+        }
+      },
+      {
+        "json": {
+          "row_number": 130,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Éviter_les_erreurs_courantes_lors_de_la_vente_à_San_Diego",
+          "Group ID": 22
+        }
+      },
+      {
+        "json": {
+          "row_number": 131,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥出售时避免常见错误",
+          "Group ID": 22
+        }
+      },
+      {
+        "json": {
+          "row_number": 132,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تجنب_الأخطاء_الشائعة_عند_البيع_في_سان_دييغو",
+          "Group ID": 22
+        }
+      },
+      {
+        "json": {
+          "row_number": 133,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Evitar_errores_comunes_al_vender_en_San_Diego",
+          "Group ID": 22
+        }
+      },
+      {
+        "json": {
+          "row_number": 134,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_singles",
+          "Group ID": 23
+        }
+      },
+      {
+        "json": {
+          "row_number": 135,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Alleinstehende",
+          "Group ID": 23
+        }
+      },
+      {
+        "json": {
+          "row_number": 136,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_célibataires",
+          "Group ID": 23
+        }
+      },
+      {
+        "json": {
+          "row_number": 137,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县单身人士搬迁",
+          "Group ID": 23
+        }
+      },
+      {
+        "json": {
+          "row_number": 138,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للأفراد",
+          "Group ID": 23
+        }
+      },
+      {
+        "json": {
+          "row_number": 139,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_solteros",
+          "Group ID": 23
+        }
+      },
+      {
+        "json": {
+          "row_number": 140,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Family_homes_with_large_yards_in_Los_Angeles",
+          "Group ID": 24
+        }
+      },
+      {
+        "json": {
+          "row_number": 141,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Familienhäuser_mit_großen_Gärten_in_Los_Angeles",
+          "Group ID": 24
+        }
+      },
+      {
+        "json": {
+          "row_number": 142,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_familiales_avec_grands_jardins_à_Los_Angeles",
+          "Group ID": 24
+        }
+      },
+      {
+        "json": {
+          "row_number": 143,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带大庭院的家庭住宅",
+          "Group ID": 24
+        }
+      },
+      {
+        "json": {
+          "row_number": 144,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_عائلية_بساحات_كبيرة_في_لوس_أنجلوس",
+          "Group ID": 24
+        }
+      },
+      {
+        "json": {
+          "row_number": 145,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_familiares_con_jardines_grandes_en_Los_Angeles",
+          "Group ID": 24
+        }
+      },
+      {
+        "json": {
+          "row_number": 146,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_without_an_agent",
+          "Group ID": 25
+        }
+      },
+      {
+        "json": {
+          "row_number": 147,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_ohne_Makler",
+          "Group ID": 25
+        }
+      },
+      {
+        "json": {
+          "row_number": 148,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_sans_agent",
+          "Group ID": 25
+        }
+      },
+      {
+        "json": {
+          "row_number": 149,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋无中介出售",
+          "Group ID": 25
+        }
+      },
+      {
+        "json": {
+          "row_number": 150,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_بدون_وكيل",
+          "Group ID": 25
+        }
+      },
+      {
+        "json": {
+          "row_number": 151,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_sin_agente",
+          "Group ID": 25
+        }
+      },
+      {
+        "json": {
+          "row_number": 152,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Luxury_relocation_to_Orange_County",
+          "Group ID": 26
+        }
+      },
+      {
+        "json": {
+          "row_number": 153,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Luxusumzug_nach_Orange_County",
+          "Group ID": 26
+        }
+      },
+      {
+        "json": {
+          "row_number": 154,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménagement_de_luxe_à_Orange_County",
+          "Group ID": 26
+        }
+      },
+      {
+        "json": {
+          "row_number": 155,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县豪华搬迁",
+          "Group ID": 26
+        }
+      },
+      {
+        "json": {
+          "row_number": 156,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_الفاخر_إلى_مدينة_أورانج",
+          "Group ID": 26
+        }
+      },
+      {
+        "json": {
+          "row_number": 157,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudanza_de_lujo_a_Orange_County",
+          "Group ID": 26
+        }
+      },
+      {
+        "json": {
+          "row_number": 158,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Buying_a_loft_in_Los_Angeles",
+          "Group ID": 27
+        }
+      },
+      {
+        "json": {
+          "row_number": 159,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Kauf_eines_Lofts_in_Los_Angeles",
+          "Group ID": 27
+        }
+      },
+      {
+        "json": {
+          "row_number": 160,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Acheter_un_loft_à_Los_Angeles",
+          "Group ID": 27
+        }
+      },
+      {
+        "json": {
+          "row_number": 161,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "在洛杉矶购买阁楼公寓",
+          "Group ID": 27
+        }
+      },
+      {
+        "json": {
+          "row_number": 162,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "شراء_لوفت_في_لوس_أنجلوس",
+          "Group ID": 27
+        }
+      },
+      {
+        "json": {
+          "row_number": 163,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Comprar_un_loft_en_Los_Angeles",
+          "Group ID": 27
+        }
+      },
+      {
+        "json": {
+          "row_number": 164,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Choosing_the_right_agent_for_San_Diego_home_sale",
+          "Group ID": 28
+        }
+      },
+      {
+        "json": {
+          "row_number": 165,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Auswahl_des_richtigen_Maklers_für_den_San_Diego_Hausverkauf",
+          "Group ID": 28
+        }
+      },
+      {
+        "json": {
+          "row_number": 166,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Choisir_le_bon_agent_pour_la_vente_de_votre_maison_à_San_Diego",
+          "Group ID": 28
+        }
+      },
+      {
+        "json": {
+          "row_number": 167,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "为圣地亚哥房屋出售选择合适的经纪人",
+          "Group ID": 28
+        }
+      },
+      {
+        "json": {
+          "row_number": 168,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "اختيار_الوكيل_المناسب_لبيع_منزل_في_سان_دييغو",
+          "Group ID": 28
+        }
+      },
+      {
+        "json": {
+          "row_number": 169,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Elegir_al_agente_adecuado_para_la_venta_de_tu_casa_en_San_Diego",
+          "Group ID": 28
+        }
+      },
+      {
+        "json": {
+          "row_number": 170,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_coastal_living",
+          "Group ID": 29
+        }
+      },
+      {
+        "json": {
+          "row_number": 171,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_küstennahes_Leben",
+          "Group ID": 29
+        }
+      },
+      {
+        "json": {
+          "row_number": 172,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_une_vie_côtière",
+          "Group ID": 29
+        }
+      },
+      {
+        "json": {
+          "row_number": 173,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县沿海生活搬迁",
+          "Group ID": 29
+        }
+      },
+      {
+        "json": {
+          "row_number": 174,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للعيش_على_الساحل",
+          "Group ID": 29
+        }
+      },
+      {
+        "json": {
+          "row_number": 175,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_vida_costera",
+          "Group ID": 29
+        }
+      },
+      {
+        "json": {
+          "row_number": 176,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Gated_community_homes_for_sale_in_Los_Angeles",
+          "Group ID": 30
+        }
+      },
+      {
+        "json": {
+          "row_number": 177,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_in_abgeschlossenen_Wohnanlagen_zum_Verkauf_in_Los_Angeles",
+          "Group ID": 30
+        }
+      },
+      {
+        "json": {
+          "row_number": 178,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_dans_communautés_fermées_à_vendre_à_Los_Angeles",
+          "Group ID": 30
+        }
+      },
+      {
+        "json": {
+          "row_number": 179,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶封闭社区住宅出售",
+          "Group ID": 30
+        }
+      },
+      {
+        "json": {
+          "row_number": 180,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_في_مجتمعات_مسورة_للبيع_في_لوس_أنجلوس",
+          "Group ID": 30
+        }
+      },
+      {
+        "json": {
+          "row_number": 181,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_en_comunidades_cerradas_en_venta_en_Los_Angeles",
+          "Group ID": 30
+        }
+      },
+      {
+        "json": {
+          "row_number": 182,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_home_offices_in_Los_Angeles",
+          "Group ID": 31
+        }
+      },
+      {
+        "json": {
+          "row_number": 183,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Heimbüros_in_Los_Angeles",
+          "Group ID": 31
+        }
+      },
+      {
+        "json": {
+          "row_number": 184,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_bureaux_à_domicile_à_Los_Angeles",
+          "Group ID": 31
+        }
+      },
+      {
+        "json": {
+          "row_number": 185,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带家庭办公室的住宅",
+          "Group ID": 31
+        }
+      },
+      {
+        "json": {
+          "row_number": 186,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بمكاتب_منزلية_في_لوس_أنجلوس",
+          "Group ID": 31
+        }
+      },
+      {
+        "json": {
+          "row_number": 187,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_oficinas_en_casa_en_Los_Angeles",
+          "Group ID": 31
+        }
+      },
+      {
+        "json": {
+          "row_number": 188,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Timing_your_San_Diego_home_sale",
+          "Group ID": 32
+        }
+      },
+      {
+        "json": {
+          "row_number": 189,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Zeitplanung_des_Verkaufs_Ihres_San_Diego_Hauses",
+          "Group ID": 32
+        }
+      },
+      {
+        "json": {
+          "row_number": 190,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Planifier_le_moment_de_la_vente_de_votre_maison_à_San_Diego",
+          "Group ID": 32
+        }
+      },
+      {
+        "json": {
+          "row_number": 191,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售的时机选择",
+          "Group ID": 32
+        }
+      },
+      {
+        "json": {
+          "row_number": 192,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "توقيت_بيع_منزلك_في_سان_دييغو",
+          "Group ID": 32
+        }
+      },
+      {
+        "json": {
+          "row_number": 193,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Elegir_el_momento_para_vender_tu_casa_en_San_Diego",
+          "Group ID": 32
+        }
+      },
+      {
+        "json": {
+          "row_number": 194,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_outdoor_lifestyle",
+          "Group ID": 33
+        }
+      },
+      {
+        "json": {
+          "row_number": 195,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_einen_Outdoor-Lebensstil",
+          "Group ID": 33
+        }
+      },
+      {
+        "json": {
+          "row_number": 196,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_un_mode_de_vie_en_plein_air",
+          "Group ID": 33
+        }
+      },
+      {
+        "json": {
+          "row_number": 197,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县户外生活方式搬迁",
+          "Group ID": 33
+        }
+      },
+      {
+        "json": {
+          "row_number": 198,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لنمط_حياة_خارجي",
+          "Group ID": 33
+        }
+      },
+      {
+        "json": {
+          "row_number": 199,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_un_estilo_de_vida_al_aire_libre",
+          "Group ID": 33
+        }
+      },
+      {
+        "json": {
+          "row_number": 200,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Urban_apartments_for_sale_in_Los_Angeles",
+          "Group ID": 34
+        }
+      },
+      {
+        "json": {
+          "row_number": 201,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Stadtwohnungen_zum_Verkauf_in_Los_Angeles",
+          "Group ID": 34
+        }
+      },
+      {
+        "json": {
+          "row_number": 202,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Appartements_urbains_à_vendre_à_Los_Angeles",
+          "Group ID": 34
+        }
+      },
+      {
+        "json": {
+          "row_number": 203,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶城市公寓出售",
+          "Group ID": 34
+        }
+      },
+      {
+        "json": {
+          "row_number": 204,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "شقق_حضرية_للبيع_في_لوس_أنجلوس",
+          "Group ID": 34
+        }
+      },
+      {
+        "json": {
+          "row_number": 205,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Apartamentos_urbanos_en_venta_en_Los_Angeles",
+          "Group ID": 34
+        }
+      },
+      {
+        "json": {
+          "row_number": 206,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Renovating_before_selling_your_San_Diego_home",
+          "Group ID": 35
+        }
+      },
+      {
+        "json": {
+          "row_number": 207,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Renovierung_vor_dem_Verkauf_Ihres_San_Diego_Hauses",
+          "Group ID": 35
+        }
+      },
+      {
+        "json": {
+          "row_number": 208,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Rénover_avant_de_vendre_votre_maison_à_San_Diego",
+          "Group ID": 35
+        }
+      },
+      {
+        "json": {
+          "row_number": 209,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售前的翻新",
+          "Group ID": 35
+        }
+      },
+      {
+        "json": {
+          "row_number": 210,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تجديد_منزلك_في_سان_دييغو_قبل_البيع",
+          "Group ID": 35
+        }
+      },
+      {
+        "json": {
+          "row_number": 211,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Renovar_antes_de_vender_tu_casa_en_San_Diego",
+          "Group ID": 35
+        }
+      },
+      {
+        "json": {
+          "row_number": 212,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_tech_jobs",
+          "Group ID": 36
+        }
+      },
+      {
+        "json": {
+          "row_number": 213,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Tech-Jobs",
+          "Group ID": 36
+        }
+      },
+      {
+        "json": {
+          "row_number": 214,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_emplois_technologiques",
+          "Group ID": 36
+        }
+      },
+      {
+        "json": {
+          "row_number": 215,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县科技工作搬迁",
+          "Group ID": 36
+        }
+      },
+      {
+        "json": {
+          "row_number": 216,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لوظائف_التكنولوجيا",
+          "Group ID": 36
+        }
+      },
+      {
+        "json": {
+          "row_number": 217,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_por_empleos_tecnológicos",
+          "Group ID": 36
+        }
+      },
+      {
+        "json": {
+          "row_number": 218,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Buying_a_townhouse_in_Los_Angeles",
+          "Group ID": 37
+        }
+      },
+      {
+        "json": {
+          "row_number": 219,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Kauf_eines_Reihenhauses_in_Los_Angeles",
+          "Group ID": 37
+        }
+      },
+      {
+        "json": {
+          "row_number": 220,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Acheter_une_maison_de_ville_à_Los_Angeles",
+          "Group ID": 37
+        }
+      },
+      {
+        "json": {
+          "row_number": 221,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "在洛杉矶购买联排别墅",
+          "Group ID": 37
+        }
+      },
+      {
+        "json": {
+          "row_number": 222,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "شراء_منزل_تاون_هاوس_في_لوس_أنجلوس",
+          "Group ID": 37
+        }
+      },
+      {
+        "json": {
+          "row_number": 223,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Comprar_una_casa_adosada_en_Los_Angeles",
+          "Group ID": 37
+        }
+      },
+      {
+        "json": {
+          "row_number": 224,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Negotiating_offers_for_your_San_Diego_home",
+          "Group ID": 38
+        }
+      },
+      {
+        "json": {
+          "row_number": 225,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verhandlung_von_Angeboten_für_Ihr_San_Diego_Haus",
+          "Group ID": 38
+        }
+      },
+      {
+        "json": {
+          "row_number": 226,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Négocier_les_offres_pour_votre_maison_à_San_Diego",
+          "Group ID": 38
+        }
+      },
+      {
+        "json": {
+          "row_number": 227,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售的报价谈判",
+          "Group ID": 38
+        }
+      },
+      {
+        "json": {
+          "row_number": 228,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "التفاوض_على_العروض_لمنزلك_في_سان_دييغو",
+          "Group ID": 38
+        }
+      },
+      {
+        "json": {
+          "row_number": 229,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Negociar_ofertas_para_tu_casa_en_San_Diego",
+          "Group ID": 38
+        }
+      },
+      {
+        "json": {
+          "row_number": 230,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Pet-friendly_relocation_to_Orange_County",
+          "Group ID": 39
+        }
+      },
+      {
+        "json": {
+          "row_number": 231,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Haustierfreundlicher_Umzug_nach_Orange_County",
+          "Group ID": 39
+        }
+      },
+      {
+        "json": {
+          "row_number": 232,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménagement_adapté_aux_animaux_à_Orange_County",
+          "Group ID": 39
+        }
+      },
+      {
+        "json": {
+          "row_number": 233,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县宠物友好搬迁",
+          "Group ID": 39
+        }
+      },
+      {
+        "json": {
+          "row_number": 234,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_الصديق_للحيوانات_إلى_مدينة_أورانج",
+          "Group ID": 39
+        }
+      },
+      {
+        "json": {
+          "row_number": 235,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudanza_aptas_para_mascotas_a_Orange_County",
+          "Group ID": 39
+        }
+      },
+      {
+        "json": {
+          "row_number": 236,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_mountain_views_in_Los_Angeles",
+          "Group ID": 40
+        }
+      },
+      {
+        "json": {
+          "row_number": 237,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Bergblick_in_Los_Angeles",
+          "Group ID": 40
+        }
+      },
+      {
+        "json": {
+          "row_number": 238,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_vues_sur_les_montagnes_à_Los_Angeles",
+          "Group ID": 40
+        }
+      },
+      {
+        "json": {
+          "row_number": 239,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶山景住宅",
+          "Group ID": 40
+        }
+      },
+      {
+        "json": {
+          "row_number": 240,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بإطلالات_جبلية_في_لوس_أنجلوس",
+          "Group ID": 40
+        }
+      },
+      {
+        "json": {
+          "row_number": 241,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_vistas_a_las_montañas_en_Los_Angeles",
+          "Group ID": 40
+        }
+      },
+      {
+        "json": {
+          "row_number": 242,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_guest_houses_in_Los_Angeles",
+          "Group ID": 41
+        }
+      },
+      {
+        "json": {
+          "row_number": 243,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Gästehäusern_in_Los_Angeles",
+          "Group ID": 41
+        }
+      },
+      {
+        "json": {
+          "row_number": 244,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_maisons_d’invités_à_Los_Angeles",
+          "Group ID": 41
+        }
+      },
+      {
+        "json": {
+          "row_number": 245,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带客房的住宅",
+          "Group ID": 41
+        }
+      },
+      {
+        "json": {
+          "row_number": 246,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_ببيوت_ضيافة_في_لوس_أنجلوس",
+          "Group ID": 41
+        }
+      },
+      {
+        "json": {
+          "row_number": 247,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_casas_de_huéspedes_en_Los_Angeles",
+          "Group ID": 41
+        }
+      },
+      {
+        "json": {
+          "row_number": 248,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Boosting_curb_appeal_for_San_Diego_home_sale",
+          "Group ID": 42
+        }
+      },
+      {
+        "json": {
+          "row_number": 249,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Steigerung_der_Attraktivität_Ihres_San_Diego_Hauses_für_den_Verkauf",
+          "Group ID": 42
+        }
+      },
+      {
+        "json": {
+          "row_number": 250,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Améliorer_l’attrait_extérieur_pour_la_vente_de_votre_maison_à_San_Diego",
+          "Group ID": 42
+        }
+      },
+      {
+        "json": {
+          "row_number": 251,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "提升圣地亚哥房屋出售的路边吸引力",
+          "Group ID": 42
+        }
+      },
+      {
+        "json": {
+          "row_number": 252,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تعزيز_جاذبية_المنزل_الخارجية_لبيع_في_سان_دييغو",
+          "Group ID": 42
+        }
+      },
+      {
+        "json": {
+          "row_number": 253,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Mejorar_el_atractivo_exterior_para_la_venta_en_San_Diego",
+          "Group ID": 42
+        }
+      },
+      {
+        "json": {
+          "row_number": 254,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_empty_nesters",
+          "Group ID": 43
+        }
+      },
+      {
+        "json": {
+          "row_number": 255,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Empty_Nester",
+          "Group ID": 43
+        }
+      },
+      {
+        "json": {
+          "row_number": 256,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_nids_vides",
+          "Group ID": 43
+        }
+      },
+      {
+        "json": {
+          "row_number": 257,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县空巢老人搬迁",
+          "Group ID": 43
+        }
+      },
+      {
+        "json": {
+          "row_number": 258,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للأزواج_بدون_أطفال",
+          "Group ID": 43
+        }
+      },
+      {
+        "json": {
+          "row_number": 259,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_nidos_vacíos",
+          "Group ID": 43
+        }
+      },
+      {
+        "json": {
+          "row_number": 260,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Waterfront_condos_for_sale_in_Los_Angeles",
+          "Group ID": 44
+        }
+      },
+      {
+        "json": {
+          "row_number": 261,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Eigentumswohnungen_am_Wasser_zum_Verkauf_in_Los_Angeles",
+          "Group ID": 44
+        }
+      },
+      {
+        "json": {
+          "row_number": 262,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Condos_en_bord_de_mer_à_vendre_à_Los_Angeles",
+          "Group ID": 44
+        }
+      },
+      {
+        "json": {
+          "row_number": 263,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶滨水公寓出售",
+          "Group ID": 44
+        }
+      },
+      {
+        "json": {
+          "row_number": 264,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "شقق_على_الواجهة_البحرية_للبيع_في_لوس_أنجلوس",
+          "Group ID": 44
+        }
+      },
+      {
+        "json": {
+          "row_number": 265,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Condominios_frente_al_mar_en_venta_en_Los_Angeles",
+          "Group ID": 44
+        }
+      },
+      {
+        "json": {
+          "row_number": 266,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_in_a_buyer’s_market",
+          "Group ID": 45
+        }
+      },
+      {
+        "json": {
+          "row_number": 267,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_in_einem_Käufermarkt",
+          "Group ID": 45
+        }
+      },
+      {
+        "json": {
+          "row_number": 268,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_dans_un_marché_d’acheteurs",
+          "Group ID": 45
+        }
+      },
+      {
+        "json": {
+          "row_number": 269,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "在圣地亚哥买方市场出售房屋",
+          "Group ID": 45
+        }
+      },
+      {
+        "json": {
+          "row_number": 270,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_في_سوق_المشترين",
+          "Group ID": 45
+        }
+      },
+      {
+        "json": {
+          "row_number": 271,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_en_un_mercado_de_compradores",
+          "Group ID": 45
+        }
+      },
+      {
+        "json": {
+          "row_number": 272,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_healthcare_jobs",
+          "Group ID": 46
+        }
+      },
+      {
+        "json": {
+          "row_number": 273,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Jobs_im_Gesundheitswesen",
+          "Group ID": 46
+        }
+      },
+      {
+        "json": {
+          "row_number": 274,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_emplois_dans_la_santé",
+          "Group ID": 46
+        }
+      },
+      {
+        "json": {
+          "row_number": 275,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县医疗工作搬迁",
+          "Group ID": 46
+        }
+      },
+      {
+        "json": {
+          "row_number": 276,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لوظائف_الرعاية_الصحية",
+          "Group ID": 46
+        }
+      },
+      {
+        "json": {
+          "row_number": 277,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_por_empleos_en_salud",
+          "Group ID": 46
+        }
+      },
+      {
+        "json": {
+          "row_number": 278,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_private_pools_in_Los_Angeles",
+          "Group ID": 47
+        }
+      },
+      {
+        "json": {
+          "row_number": 279,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_privaten_Pools_in_Los_Angeles",
+          "Group ID": 47
+        }
+      },
+      {
+        "json": {
+          "row_number": 280,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_piscines_privées_à_Los_Angeles",
+          "Group ID": 47
+        }
+      },
+      {
+        "json": {
+          "row_number": 281,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带私人泳池的住宅",
+          "Group ID": 47
+        }
+      },
+      {
+        "json": {
+          "row_number": 282,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بمسابح_خاصة_في_لوس_أنجلوس",
+          "Group ID": 47
+        }
+      },
+      {
+        "json": {
+          "row_number": 283,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_piscinas_privadas_en_Los_Angeles",
+          "Group ID": 47
+        }
+      },
+      {
+        "json": {
+          "row_number": 284,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Preparing_for_a_San_Diego_home_inspection",
+          "Group ID": 48
+        }
+      },
+      {
+        "json": {
+          "row_number": 285,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vorbereitung_auf_eine_San_Diego_Hausinspektion",
+          "Group ID": 48
+        }
+      },
+      {
+        "json": {
+          "row_number": 286,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Préparer_une_inspection_de_votre_maison_à_San_Diego",
+          "Group ID": 48
+        }
+      },
+      {
+        "json": {
+          "row_number": 287,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售前的检查准备",
+          "Group ID": 48
+        }
+      },
+      {
+        "json": {
+          "row_number": 288,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "التحضير_لفحص_منزل_في_سان_دييغو",
+          "Group ID": 48
+        }
+      },
+      {
+        "json": {
+          "row_number": 289,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Preparar_una_inspección_de_tu_casa_en_San_Diego",
+          "Group ID": 48
+        }
+      },
+      {
+        "json": {
+          "row_number": 290,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_artists",
+          "Group ID": 49
+        }
+      },
+      {
+        "json": {
+          "row_number": 291,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Künstler",
+          "Group ID": 49
+        }
+      },
+      {
+        "json": {
+          "row_number": 292,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_artistes",
+          "Group ID": 49
+        }
+      },
+      {
+        "json": {
+          "row_number": 293,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县艺术家搬迁",
+          "Group ID": 49
+        }
+      },
+      {
+        "json": {
+          "row_number": 294,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للفنانين",
+          "Group ID": 49
+        }
+      },
+      {
+        "json": {
+          "row_number": 295,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_artistas",
+          "Group ID": 49
+        }
+      },
+      {
+        "json": {
+          "row_number": 296,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Buying_a_mid-century_modern_home_in_Los_Angeles",
+          "Group ID": 50
+        }
+      },
+      {
+        "json": {
+          "row_number": 297,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Kauf_eines_mid-century_modernen_Hauses_in_Los_Angeles",
+          "Group ID": 50
+        }
+      },
+      {
+        "json": {
+          "row_number": 298,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Acheter_une_maison_moderne_mid-century_à_Los_Angeles",
+          "Group ID": 50
+        }
+      },
+      {
+        "json": {
+          "row_number": 299,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "在洛杉矶购买中世纪现代住宅",
+          "Group ID": 50
+        }
+      },
+      {
+        "json": {
+          "row_number": 300,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "شراء_منزل_عصري_من_منتصف_القرن_في_لوس_أنجلوس",
+          "Group ID": 50
+        }
+      },
+      {
+        "json": {
+          "row_number": 301,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Comprar_una_casa_moderna_de_mediados_de_siglo_en_Los_Angeles",
+          "Group ID": 50
+        }
+      },
+      {
+        "json": {
+          "row_number": 302,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_during_winter",
+          "Group ID": 51
+        }
+      },
+      {
+        "json": {
+          "row_number": 303,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_im_Winter",
+          "Group ID": 51
+        }
+      },
+      {
+        "json": {
+          "row_number": 304,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_en_hiver",
+          "Group ID": 51
+        }
+      },
+      {
+        "json": {
+          "row_number": 305,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "冬季出售圣地亚哥房屋",
+          "Group ID": 51
+        }
+      },
+      {
+        "json": {
+          "row_number": 306,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_خلال_الشتاء",
+          "Group ID": 51
+        }
+      },
+      {
+        "json": {
+          "row_number": 307,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_en_invierno",
+          "Group ID": 51
+        }
+      },
+      {
+        "json": {
+          "row_number": 308,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_golf_enthusiasts",
+          "Group ID": 52
+        }
+      },
+      {
+        "json": {
+          "row_number": 309,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Golfbegeisterte",
+          "Group ID": 52
+        }
+      },
+      {
+        "json": {
+          "row_number": 310,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_passionnés_de_golf",
+          "Group ID": 52
+        }
+      },
+      {
+        "json": {
+          "row_number": 311,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县高尔夫爱好者搬迁",
+          "Group ID": 52
+        }
+      },
+      {
+        "json": {
+          "row_number": 312,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لعشاق_الجولف",
+          "Group ID": 52
+        }
+      },
+      {
+        "json": {
+          "row_number": 313,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_entusiastas_del_golf",
+          "Group ID": 52
+        }
+      },
+      {
+        "json": {
+          "row_number": 314,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_wine_cellars_in_Los_Angeles",
+          "Group ID": 53
+        }
+      },
+      {
+        "json": {
+          "row_number": 315,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Weinkellern_in_Los_Angeles",
+          "Group ID": 53
+        }
+      },
+      {
+        "json": {
+          "row_number": 316,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_caves_à_vin_à_Los_Angeles",
+          "Group ID": 53
+        }
+      },
+      {
+        "json": {
+          "row_number": 317,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带酒窖的住宅",
+          "Group ID": 53
+        }
+      },
+      {
+        "json": {
+          "row_number": 318,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بقبو_نبيذ_في_لوس_أنجلوس",
+          "Group ID": 53
+        }
+      },
+      {
+        "json": {
+          "row_number": 319,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_bodegas_de_vino_en_Los_Angeles",
+          "Group ID": 53
+        }
+      },
+      {
+        "json": {
+          "row_number": 320,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_to_investors",
+          "Group ID": 54
+        }
+      },
+      {
+        "json": {
+          "row_number": 321,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_an_Investoren",
+          "Group ID": 54
+        }
+      },
+      {
+        "json": {
+          "row_number": 322,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_à_des_investisseurs",
+          "Group ID": 54
+        }
+      },
+      {
+        "json": {
+          "row_number": 323,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "向投资者出售圣地亚哥房屋",
+          "Group ID": 54
+        }
+      },
+      {
+        "json": {
+          "row_number": 324,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_للمستثمرين",
+          "Group ID": 54
+        }
+      },
+      {
+        "json": {
+          "row_number": 325,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_a_inversores",
+          "Group ID": 54
+        }
+      },
+      {
+        "json": {
+          "row_number": 326,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_food_lovers",
+          "Group ID": 55
+        }
+      },
+      {
+        "json": {
+          "row_number": 327,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Gourmets",
+          "Group ID": 55
+        }
+      },
+      {
+        "json": {
+          "row_number": 328,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_amateurs_de_cuisine",
+          "Group ID": 55
+        }
+      },
+      {
+        "json": {
+          "row_number": 329,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县美食爱好者搬迁",
+          "Group ID": 55
+        }
+      },
+      {
+        "json": {
+          "row_number": 330,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لعشاق_الطعام",
+          "Group ID": 55
+        }
+      },
+      {
+        "json": {
+          "row_number": 331,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_amantes_de_la_comida",
+          "Group ID": 55
+        }
+      },
+      {
+        "json": {
+          "row_number": 332,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Buying_a_home_with_city_views_in_Los_Angeles",
+          "Group ID": 56
+        }
+      },
+      {
+        "json": {
+          "row_number": 333,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Kauf_eines_Hauses_mit_Stadtblick_in_Los_Angeles",
+          "Group ID": 56
+        }
+      },
+      {
+        "json": {
+          "row_number": 334,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Acheter_une_maison_avec_vues_sur_la_ville_à_Los_Angeles",
+          "Group ID": 56
+        }
+      },
+      {
+        "json": {
+          "row_number": 335,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "在洛杉矶购买城市景观住宅",
+          "Group ID": 56
+        }
+      },
+      {
+        "json": {
+          "row_number": 336,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "شراء_منزل_بإطلالات_على_المدينة_في_لوس_أنجلوس",
+          "Group ID": 56
+        }
+      },
+      {
+        "json": {
+          "row_number": 337,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Comprar_una_casa_con_vistas_a_la_ciudad_en_Los_Angeles",
+          "Group ID": 56
+        }
+      },
+      {
+        "json": {
+          "row_number": 338,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_in_a_seller’s_market",
+          "Group ID": 57
+        }
+      },
+      {
+        "json": {
+          "row_number": 339,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_in_einem_Verkäufermarkt",
+          "Group ID": 57
+        }
+      },
+      {
+        "json": {
+          "row_number": 340,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_dans_un_marché_de_vendeurs",
+          "Group ID": 57
+        }
+      },
+      {
+        "json": {
+          "row_number": 341,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "在圣地亚哥卖方市场出售房屋",
+          "Group ID": 57
+        }
+      },
+      {
+        "json": {
+          "row_number": 342,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_في_سوق_البائعين",
+          "Group ID": 57
+        }
+      },
+      {
+        "json": {
+          "row_number": 343,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_en_un_mercado_de_vendedores",
+          "Group ID": 57
+        }
+      },
+      {
+        "json": {
+          "row_number": 344,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_fitness_enthusiasts",
+          "Group ID": 58
+        }
+      },
+      {
+        "json": {
+          "row_number": 345,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Fitnessbegeisterte",
+          "Group ID": 58
+        }
+      },
+      {
+        "json": {
+          "row_number": 346,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_passionnés_de_fitness",
+          "Group ID": 58
+        }
+      },
+      {
+        "json": {
+          "row_number": 347,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县健身爱好者搬迁",
+          "Group ID": 58
+        }
+      },
+      {
+        "json": {
+          "row_number": 348,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لعشاق_اللياقة_البدنية",
+          "Group ID": 58
+        }
+      },
+      {
+        "json": {
+          "row_number": 349,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_entusiastas_del_fitness",
+          "Group ID": 58
+        }
+      },
+      {
+        "json": {
+          "row_number": 350,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_outdoor_kitchens_in_Los_Angeles",
+          "Group ID": 59
+        }
+      },
+      {
+        "json": {
+          "row_number": 351,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Außenküchen_in_Los_Angeles",
+          "Group ID": 59
+        }
+      },
+      {
+        "json": {
+          "row_number": 352,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_cuisines_extérieures_à_Los_Angeles",
+          "Group ID": 59
+        }
+      },
+      {
+        "json": {
+          "row_number": 353,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带户外厨房的住宅",
+          "Group ID": 59
+        }
+      },
+      {
+        "json": {
+          "row_number": 354,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بمطابخ_خارجية_في_لوس_أنجلوس",
+          "Group ID": 59
+        }
+      },
+      {
+        "json": {
+          "row_number": 355,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_cocinas_al_aire_libre_en_Los_Angeles",
+          "Group ID": 59
+        }
+      },
+      {
+        "json": {
+          "row_number": 356,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Staging_your_San_Diego_home_for_quick_sale",
+          "Group ID": 60
+        }
+      },
+      {
+        "json": {
+          "row_number": 357,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Inszenierung_Ihres_San_Diego_Hauses_für_schnellen_Verkauf",
+          "Group ID": 60
+        }
+      },
+      {
+        "json": {
+          "row_number": 358,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Mise_en_scène_de_votre_maison_à_San_Diego_pour_une_vente_rapide",
+          "Group ID": 60
+        }
+      },
+      {
+        "json": {
+          "row_number": 359,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋快速出售的布景",
+          "Group ID": 60
+        }
+      },
+      {
+        "json": {
+          "row_number": 360,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تجهيز_منزلك_في_سان_دييغو_لبيع_سريع",
+          "Group ID": 60
+        }
+      },
+      {
+        "json": {
+          "row_number": 361,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Preparar_tu_casa_en_San_Diego_para_una_venta_rápida",
+          "Group ID": 60
+        }
+      },
+      {
+        "json": {
+          "row_number": 362,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_rooftop_decks_in_Los_Angeles",
+          "Group ID": 61
+        }
+      },
+      {
+        "json": {
+          "row_number": 363,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Dachterrasse_in_Los_Angeles",
+          "Group ID": 61
+        }
+      },
+      {
+        "json": {
+          "row_number": 364,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_terrasses_sur_le_toit_à_Los_Angeles",
+          "Group ID": 61
+        }
+      },
+      {
+        "json": {
+          "row_number": 365,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带屋顶露台的住宅",
+          "Group ID": 61
+        }
+      },
+      {
+        "json": {
+          "row_number": 366,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بأسطح_مفتوحة_في_لوس_أنجلوس",
+          "Group ID": 61
+        }
+      },
+      {
+        "json": {
+          "row_number": 367,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_ terrazas_en_la_azotea_en_Los_Angeles",
+          "Group ID": 61
+        }
+      },
+      {
+        "json": {
+          "row_number": 368,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Decluttering_your_San_Diego_home_for_sale",
+          "Group ID": 62
+        }
+      },
+      {
+        "json": {
+          "row_number": 369,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Entrümpelung_Ihres_San_Diego_Hauses_für_den_Verkauf",
+          "Group ID": 62
+        }
+      },
+      {
+        "json": {
+          "row_number": 370,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Désencombrer_votre_maison_à_San_Diego_pour_la_vente",
+          "Group ID": 62
+        }
+      },
+      {
+        "json": {
+          "row_number": 371,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售前的整理",
+          "Group ID": 62
+        }
+      },
+      {
+        "json": {
+          "row_number": 372,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تنظيف_منزلك_في_سان_دييغو_للبيع",
+          "Group ID": 62
+        }
+      },
+      {
+        "json": {
+          "row_number": 373,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Despejar_tu_casa_en_San_Diego_para_la_venta",
+          "Group ID": 62
+        }
+      },
+      {
+        "json": {
+          "row_number": 374,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_young_professionals",
+          "Group ID": 63
+        }
+      },
+      {
+        "json": {
+          "row_number": 375,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_junge_Berufstätige",
+          "Group ID": 63
+        }
+      },
+      {
+        "json": {
+          "row_number": 376,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_jeunes_professionnels",
+          "Group ID": 63
+        }
+      },
+      {
+        "json": {
+          "row_number": 377,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县年轻专业人士搬迁",
+          "Group ID": 63
+        }
+      },
+      {
+        "json": {
+          "row_number": 378,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للمحترفين_الشباب",
+          "Group ID": 63
+        }
+      },
+      {
+        "json": {
+          "row_number": 379,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_jóvenes_profesionales",
+          "Group ID": 63
+        }
+      },
+      {
+        "json": {
+          "row_number": 380,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Single-story_homes_for_sale_in_Los_Angeles",
+          "Group ID": 64
+        }
+      },
+      {
+        "json": {
+          "row_number": 381,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Eingeschossige_Häuser_zum_Verkauf_in_Los_Angeles",
+          "Group ID": 64
+        }
+      },
+      {
+        "json": {
+          "row_number": 382,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_de_plain-pied_à_vendre_à_Los_Angeles",
+          "Group ID": 64
+        }
+      },
+      {
+        "json": {
+          "row_number": 383,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶单层住宅出售",
+          "Group ID": 64
+        }
+      },
+      {
+        "json": {
+          "row_number": 384,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_من_طابق_واحد_للبيع_في_لوس_أنجلوس",
+          "Group ID": 64
+        }
+      },
+      {
+        "json": {
+          "row_number": 385,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_de_una_planta_en_venta_en_Los_Angeles",
+          "Group ID": 64
+        }
+      },
+      {
+        "json": {
+          "row_number": 386,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Pricing_strategies_for_San_Diego_home_sale",
+          "Group ID": 65
+        }
+      },
+      {
+        "json": {
+          "row_number": 387,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Preisstrategien_für_den_San_Diego_Hausverkauf",
+          "Group ID": 65
+        }
+      },
+      {
+        "json": {
+          "row_number": 388,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Stratégies_de_prix_pour_la_vente_de_votre_maison_à_San_Diego",
+          "Group ID": 65
+        }
+      },
+      {
+        "json": {
+          "row_number": 389,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售的定价策略",
+          "Group ID": 65
+        }
+      },
+      {
+        "json": {
+          "row_number": 390,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "استراتيجيات_التسعير_لبيع_منزل_في_سان_دييغو",
+          "Group ID": 65
+        }
+      },
+      {
+        "json": {
+          "row_number": 391,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Estrategias_de_precios_para_la_venta_de_tu_casa_en_San_Diego",
+          "Group ID": 65
+        }
+      },
+      {
+        "json": {
+          "row_number": 392,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_families_with_pets",
+          "Group ID": 66
+        }
+      },
+      {
+        "json": {
+          "row_number": 393,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Familien_mit_Haustieren",
+          "Group ID": 66
+        }
+      },
+      {
+        "json": {
+          "row_number": 394,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_familles_avec_animaux",
+          "Group ID": 66
+        }
+      },
+      {
+        "json": {
+          "row_number": 395,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县带宠物的家庭搬迁",
+          "Group ID": 66
+        }
+      },
+      {
+        "json": {
+          "row_number": 396,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للعائلات_مع_حيوانات_أليفة",
+          "Group ID": 66
+        }
+      },
+      {
+        "json": {
+          "row_number": 397,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_familias_con_mascotas",
+          "Group ID": 66
+        }
+      },
+      {
+        "json": {
+          "row_number": 398,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_modern_kitchens_in_Los_Angeles",
+          "Group ID": 67
+        }
+      },
+      {
+        "json": {
+          "row_number": 399,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_modernen_Küchen_in_Los_Angeles",
+          "Group ID": 67
+        }
+      },
+      {
+        "json": {
+          "row_number": 400,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_cuisines_modernes_à_Los_Angeles",
+          "Group ID": 67
+        }
+      },
+      {
+        "json": {
+          "row_number": 401,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带现代厨房的住宅",
+          "Group ID": 67
+        }
+      },
+      {
+        "json": {
+          "row_number": 402,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بمطابخ_عصرية_في_لوس_أنجلوس",
+          "Group ID": 67
+        }
+      },
+      {
+        "json": {
+          "row_number": 403,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_cocinas_modernas_en_Los_Angeles",
+          "Group ID": 67
+        }
+      },
+      {
+        "json": {
+          "row_number": 404,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Virtual_tours_for_San_Diego_home_sale",
+          "Group ID": 68
+        }
+      },
+      {
+        "json": {
+          "row_number": 405,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Virtuelle_Touren_für_den_San_Diego_Hausverkauf",
+          "Group ID": 68
+        }
+      },
+      {
+        "json": {
+          "row_number": 406,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Visites_virtuelles_pour_la_vente_de_votre_maison_à_San_Diego",
+          "Group ID": 68
+        }
+      },
+      {
+        "json": {
+          "row_number": 407,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售的虚拟游览",
+          "Group ID": 68
+        }
+      },
+      {
+        "json": {
+          "row_number": 408,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "جولات_افتراضية_لبيع_منزل_في_سان_دييغو",
+          "Group ID": 68
+        }
+      },
+      {
+        "json": {
+          "row_number": 409,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Recorridos_virtuales_para_la_venta_de_tu_casa_en_San_Diego",
+          "Group ID": 68
+        }
+      },
+      {
+        "json": {
+          "row_number": 410,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_sustainable_living",
+          "Group ID": 69
+        }
+      },
+      {
+        "json": {
+          "row_number": 411,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_nachhaltiges_Leben",
+          "Group ID": 69
+        }
+      },
+      {
+        "json": {
+          "row_number": 412,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_un_mode_de_vie_durable",
+          "Group ID": 69
+        }
+      },
+      {
+        "json": {
+          "row_number": 413,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县可持续生活搬迁",
+          "Group ID": 69
+        }
+      },
+      {
+        "json": {
+          "row_number": 414,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للعيش_بشكل_مستدام",
+          "Group ID": 69
+        }
+      },
+      {
+        "json": {
+          "row_number": 415,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_una_vida_sostenible",
+          "Group ID": 69
+        }
+      },
+      {
+        "json": {
+          "row_number": 416,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Luxury_penthouses_for_sale_in_Los_Angeles",
+          "Group ID": 70
+        }
+      },
+      {
+        "json": {
+          "row_number": 417,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Luxus-Penthäuser_zum_Verkauf_in_Los_Angeles",
+          "Group ID": 70
+        }
+      },
+      {
+        "json": {
+          "row_number": 418,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Penthouses_de_luxe_à_vendre_à_Los_Angeles",
+          "Group ID": 70
+        }
+      },
+      {
+        "json": {
+          "row_number": 419,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶豪华顶层公寓出售",
+          "Group ID": 70
+        }
+      },
+      {
+        "json": {
+          "row_number": 420,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "بنتهاوس_فاخر_للبيع_في_لوس_أنجلوس",
+          "Group ID": 70
+        }
+      },
+      {
+        "json": {
+          "row_number": 421,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Penthouses_de_lujo_en_venta_en_Los_Angeles",
+          "Group ID": 70
+        }
+      },
+      {
+        "json": {
+          "row_number": 422,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_with_pets",
+          "Group ID": 71
+        }
+      },
+      {
+        "json": {
+          "row_number": 423,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_mit_Haustieren",
+          "Group ID": 71
+        }
+      },
+      {
+        "json": {
+          "row_number": 424,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_avec_animaux",
+          "Group ID": 71
+        }
+      },
+      {
+        "json": {
+          "row_number": 425,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "带宠物出售圣地亚哥房屋",
+          "Group ID": 71
+        }
+      },
+      {
+        "json": {
+          "row_number": 426,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_مع_حيوانات_أليفة",
+          "Group ID": 71
+        }
+      },
+      {
+        "json": {
+          "row_number": 427,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_con_mascotas",
+          "Group ID": 71
+        }
+      },
+      {
+        "json": {
+          "row_number": 428,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_culinary_arts",
+          "Group ID": 72
+        }
+      },
+      {
+        "json": {
+          "row_number": 429,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_kulinarische_Künste",
+          "Group ID": 72
+        }
+      },
+      {
+        "json": {
+          "row_number": 430,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_arts_culinaires",
+          "Group ID": 72
+        }
+      },
+      {
+        "json": {
+          "row_number": 431,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县烹饪艺术搬迁",
+          "Group ID": 72
+        }
+      },
+      {
+        "json": {
+          "row_number": 432,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للفنون_الطهوية",
+          "Group ID": 72
+        }
+      },
+      {
+        "json": {
+          "row_number": 433,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_artes_culinarias",
+          "Group ID": 72
+        }
+      },
+      {
+        "json": {
+          "row_number": 434,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_home_theaters_in_Los_Angeles",
+          "Group ID": 73
+        }
+      },
+      {
+        "json": {
+          "row_number": 435,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Heimkinos_in_Los_Angeles",
+          "Group ID": 73
+        }
+      },
+      {
+        "json": {
+          "row_number": 436,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_salles_de_cinéma_à_domicile_à_Los_Angeles",
+          "Group ID": 73
+        }
+      },
+      {
+        "json": {
+          "row_number": 437,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带家庭影院的住宅",
+          "Group ID": 73
+        }
+      },
+      {
+        "json": {
+          "row_number": 438,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بغرف_سينما_منزلية_في_لوس_أنجلوس",
+          "Group ID": 73
+        }
+      },
+      {
+        "json": {
+          "row_number": 439,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_cines_en_casa_en_Los_Angeles",
+          "Group ID": 73
+        }
+      },
+      {
+        "json": {
+          "row_number": 440,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Improving_your_San_Diego_home’s_resale_value",
+          "Group ID": 74
+        }
+      },
+      {
+        "json": {
+          "row_number": 441,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verbesserung_des_Wiederverkaufswerts_Ihres_San_Diego_Hauses",
+          "Group ID": 74
+        }
+      },
+      {
+        "json": {
+          "row_number": 442,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Améliorer_la_valeur_de_revente_de_votre_maison_à_San_Diego",
+          "Group ID": 74
+        }
+      },
+      {
+        "json": {
+          "row_number": 443,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "提升圣地亚哥房屋的转售价值",
+          "Group ID": 74
+        }
+      },
+      {
+        "json": {
+          "row_number": 444,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تحسين_قيمة_إعادة_بيع_منزلك_في_سان_دييغو",
+          "Group ID": 74
+        }
+      },
+      {
+        "json": {
+          "row_number": 445,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Mejorar_el_valor_de_reventa_de_tu_casa_en_San_Diego",
+          "Group ID": 74
+        }
+      },
+      {
+        "json": {
+          "row_number": 446,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_beach_lovers",
+          "Group ID": 75
+        }
+      },
+      {
+        "json": {
+          "row_number": 447,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Strandliebhaber",
+          "Group ID": 75
+        }
+      },
+      {
+        "json": {
+          "row_number": 448,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_amateurs_de_plage",
+          "Group ID": 75
+        }
+      },
+      {
+        "json": {
+          "row_number": 449,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县海滩爱好者搬迁",
+          "Group ID": 75
+        }
+      },
+      {
+        "json": {
+          "row_number": 450,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لعشاق_الشاطئ",
+          "Group ID": 75
+        }
+      },
+      {
+        "json": {
+          "row_number": 451,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_amantes_de_la_playa",
+          "Group ID": 75
+        }
+      },
+      {
+        "json": {
+          "row_number": 452,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_large_garages_in_Los_Angeles",
+          "Group ID": 76
+        }
+      },
+      {
+        "json": {
+          "row_number": 453,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_großen_Garagen_in_Los_Angeles",
+          "Group ID": 76
+        }
+      },
+      {
+        "json": {
+          "row_number": 454,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_grands_garages_à_Los_Angeles",
+          "Group ID": 76
+        }
+      },
+      {
+        "json": {
+          "row_number": 455,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带大车库的住宅",
+          "Group ID": 76
+        }
+      },
+      {
+        "json": {
+          "row_number": 456,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بمرائب_كبيرة_في_لوس_أنجلوس",
+          "Group ID": 76
+        }
+      },
+      {
+        "json": {
+          "row_number": 457,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_garajes_grandes_en_Los_Angeles",
+          "Group ID": 76
+        }
+      },
+      {
+        "json": {
+          "row_number": 458,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_with_kids",
+          "Group ID": 77
+        }
+      },
+      {
+        "json": {
+          "row_number": 459,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_mit_Kindern",
+          "Group ID": 77
+        }
+      },
+      {
+        "json": {
+          "row_number": 460,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_avec_enfants",
+          "Group ID": 77
+        }
+      },
+      {
+        "json": {
+          "row_number": 461,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "带孩子出售圣地亚哥房屋",
+          "Group ID": 77
+        }
+      },
+      {
+        "json": {
+          "row_number": 462,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_مع_أطفال",
+          "Group ID": 77
+        }
+      },
+      {
+        "json": {
+          "row_number": 463,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_con_niños",
+          "Group ID": 77
+        }
+      },
+      {
+        "json": {
+          "row_number": 464,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_history_buff",
+          "Group ID": 78
+        }
+      },
+      {
+        "json": {
+          "row_number": 465,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Geschichtsliebhaber",
+          "Group ID": 78
+        }
+      },
+      {
+        "json": {
+          "row_number": 466,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_passionnés_d’histoire",
+          "Group ID": 78
+        }
+      },
+      {
+        "json": {
+          "row_number": 467,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县历史爱好者搬迁",
+          "Group ID": 78
+        }
+      },
+      {
+        "json": {
+          "row_number": 468,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لعشاق_التاريخ",
+          "Group ID": 78
+        }
+      },
+      {
+        "json": {
+          "row_number": 469,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_amantes_de_la_historia",
+          "Group ID": 78
+        }
+      },
+      {
+        "json": {
+          "row_number": 470,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_solar_panels_in_Los_Angeles",
+          "Group ID": 79
+        }
+      },
+      {
+        "json": {
+          "row_number": 471,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Solarpaneelen_in_Los_Angeles",
+          "Group ID": 79
+        }
+      },
+      {
+        "json": {
+          "row_number": 472,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_panneaux_solaires_à_Los_Angeles",
+          "Group ID": 79
+        }
+      },
+      {
+        "json": {
+          "row_number": 473,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带太阳能板的住宅",
+          "Group ID": 79
+        }
+      },
+      {
+        "json": {
+          "row_number": 474,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بألواح_شمسية_في_لوس_أنجلوس",
+          "Group ID": 79
+        }
+      },
+      {
+        "json": {
+          "row_number": 475,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_paneles_solares_en_Los_Angeles",
+          "Group ID": 79
+        }
+      },
+      {
+        "json": {
+          "row_number": 476,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Closing_costs_for_San_Diego_home_sale",
+          "Group ID": 80
+        }
+      },
+      {
+        "json": {
+          "row_number": 477,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Abschlusskosten_für_den_San_Diego_Hausverkauf",
+          "Group ID": 80
+        }
+      },
+      {
+        "json": {
+          "row_number": 478,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Frais_de_clôture_pour_la_vente_de_votre_maison_à_San_Diego",
+          "Group ID": 80
+        }
+      },
+      {
+        "json": {
+          "row_number": 479,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售的交易费用",
+          "Group ID": 80
+        }
+      },
+      {
+        "json": {
+          "row_number": 480,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تكاليف_الإغلاق_لبيع_منزل_في_سان_دييغو",
+          "Group ID": 80
+        }
+      },
+      {
+        "json": {
+          "row_number": 481,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Costos_de_cierre_para_la_venta_de_tu_casa_en_San_Diego",
+          "Group ID": 80
+        }
+      },
+      {
+        "json": {
+          "row_number": 482,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_adventure_seekers",
+          "Group ID": 81
+        }
+      },
+      {
+        "json": {
+          "row_number": 483,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Abenteuersuchende",
+          "Group ID": 81
+        }
+      },
+      {
+        "json": {
+          "row_number": 484,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_chercheurs_d’aventure",
+          "Group ID": 81
+        }
+      },
+      {
+        "json": {
+          "row_number": 485,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县冒险爱好者搬迁",
+          "Group ID": 81
+        }
+      },
+      {
+        "json": {
+          "row_number": 486,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لباحثي_المغامرة",
+          "Group ID": 81
+        }
+      },
+      {
+        "json": {
+          "row_number": 487,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_buscadores_de_aventuras",
+          "Group ID": 81
+        }
+      },
+      {
+        "json": {
+          "row_number": 488,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_backyard_oases_in_Los_Angeles",
+          "Group ID": 82
+        }
+      },
+      {
+        "json": {
+          "row_number": 489,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Hinterhof-Oasen_in_Los_Angeles",
+          "Group ID": 82
+        }
+      },
+      {
+        "json": {
+          "row_number": 490,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_oasis_de_jardin_à_Los_Angeles",
+          "Group ID": 82
+        }
+      },
+      {
+        "json": {
+          "row_number": 491,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带后院绿洲的住宅",
+          "Group ID": 82
+        }
+      },
+      {
+        "json": {
+          "row_number": 492,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بواحات_خلفية_في_لوس_أنجلوس",
+          "Group ID": 82
+        }
+      },
+      {
+        "json": {
+          "row_number": 493,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_oasis_en_el_patio_trasero_en_Los_Angeles",
+          "Group ID": 82
+        }
+      },
+      {
+        "json": {
+          "row_number": 494,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_with_old_repairs",
+          "Group ID": 83
+        }
+      },
+      {
+        "json": {
+          "row_number": 495,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_mit_alten_Reparaturen",
+          "Group ID": 83
+        }
+      },
+      {
+        "json": {
+          "row_number": 496,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_avec_anciennes_réparations",
+          "Group ID": 83
+        }
+      },
+      {
+        "json": {
+          "row_number": 497,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "出售带旧维修的圣地亚哥房屋",
+          "Group ID": 83
+        }
+      },
+      {
+        "json": {
+          "row_number": 498,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_مع_إصلاحات_قديمة",
+          "Group ID": 83
+        }
+      },
+      {
+        "json": {
+          "row_number": 499,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_con_reparaciones_antiguas",
+          "Group ID": 83
+        }
+      },
+      {
+        "json": {
+          "row_number": 500,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_wine_enthusiasts",
+          "Group ID": 84
+        }
+      },
+      {
+        "json": {
+          "row_number": 501,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Weinliebhaber",
+          "Group ID": 84
+        }
+      },
+      {
+        "json": {
+          "row_number": 502,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_amateurs_de_vin",
+          "Group ID": 84
+        }
+      },
+      {
+        "json": {
+          "row_number": 503,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县葡萄酒爱好者搬迁",
+          "Group ID": 84
+        }
+      },
+      {
+        "json": {
+          "row_number": 504,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لعشاق_النبيذ",
+          "Group ID": 84
+        }
+      },
+      {
+        "json": {
+          "row_number": 505,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_amantes_del_vino",
+          "Group ID": 84
+        }
+      },
+      {
+        "json": {
+          "row_number": 506,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_open_floor_plans_in_Los_Angeles",
+          "Group ID": 85
+        }
+      },
+      {
+        "json": {
+          "row_number": 507,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_offenen_Grundrissen_in_Los_Angeles",
+          "Group ID": 85
+        }
+      },
+      {
+        "json": {
+          "row_number": 508,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_plans_d’étage_ouverts_à_Los_Angeles",
+          "Group ID": 85
+        }
+      },
+      {
+        "json": {
+          "row_number": 509,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶开放式户型住宅",
+          "Group ID": 85
+        }
+      },
+      {
+        "json": {
+          "row_number": 510,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بتصاميم_مفتوحة_في_لوس_أنجلوس",
+          "Group ID": 85
+        }
+      },
+      {
+        "json": {
+          "row_number": 511,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_planos_abiertos_en_Los_Angeles",
+          "Group ID": 85
+        }
+      },
+      {
+        "json": {
+          "row_number": 512,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Handling_multiple_offers_for_San_Diego_home_sale",
+          "Group ID": 86
+        }
+      },
+      {
+        "json": {
+          "row_number": 513,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Handhabung_mehrerer_Angebote_für_den_San_Diego_Hausverkauf",
+          "Group ID": 86
+        }
+      },
+      {
+        "json": {
+          "row_number": 514,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Gérer_plusieurs_offres_pour_la_vente_de_votre_maison_à_San_Diego",
+          "Group ID": 86
+        }
+      },
+      {
+        "json": {
+          "row_number": 515,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "处理圣地亚哥房屋出售的多份报价",
+          "Group ID": 86
+        }
+      },
+      {
+        "json": {
+          "row_number": 516,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "التعامل_مع_عروض_متعددة_لبيع_منزل_في_سان_دييغو",
+          "Group ID": 86
+        }
+      },
+      {
+        "json": {
+          "row_number": 517,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Gestionar_múltiples_ofertas_para_la_venta_de_tu_casa_en_San_Diego",
+          "Group ID": 86
+        }
+      },
+      {
+        "json": {
+          "row_number": 518,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_surfing_enthusiasts",
+          "Group ID": 87
+        }
+      },
+      {
+        "json": {
+          "row_number": 519,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Surfbegeisterte",
+          "Group ID": 87
+        }
+      },
+      {
+        "json": {
+          "row_number": 520,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_passionnés_de_surf",
+          "Group ID": 87
+        }
+      },
+      {
+        "json": {
+          "row_number": 521,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县冲浪爱好者搬迁",
+          "Group ID": 87
+        }
+      },
+      {
+        "json": {
+          "row_number": 522,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لعشاق_ركوب_الأمواج",
+          "Group ID": 87
+        }
+      },
+      {
+        "json": {
+          "row_number": 523,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_entusiastas_del_surf",
+          "Group ID": 87
+        }
+      },
+      {
+        "json": {
+          "row_number": 524,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_spa_bathrooms_in_Los_Angeles",
+          "Group ID": 88
+        }
+      },
+      {
+        "json": {
+          "row_number": 525,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Spa-Badezimmern_in_Los_Angeles",
+          "Group ID": 88
+        }
+      },
+      {
+        "json": {
+          "row_number": 526,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_salles_de_bain_spa_à_Los_Angeles",
+          "Group ID": 88
+        }
+      },
+      {
+        "json": {
+          "row_number": 527,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带水疗浴室的住宅",
+          "Group ID": 88
+        }
+      },
+      {
+        "json": {
+          "row_number": 528,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بحمامات_سبا_في_لوس_أنجلوس",
+          "Group ID": 88
+        }
+      },
+      {
+        "json": {
+          "row_number": 529,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_baños_de_spa_en_Los_Angeles",
+          "Group ID": 88
+        }
+      },
+      {
+        "json": {
+          "row_number": 530,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_during_divorce",
+          "Group ID": 89
+        }
+      },
+      {
+        "json": {
+          "row_number": 531,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_während_einer_Scheidung",
+          "Group ID": 89
+        }
+      },
+      {
+        "json": {
+          "row_number": 532,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_pendant_un_divorce",
+          "Group ID": 89
+        }
+      },
+      {
+        "json": {
+          "row_number": 533,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "离婚期间出售圣地亚哥房屋",
+          "Group ID": 89
+        }
+      },
+      {
+        "json": {
+          "row_number": 534,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_أثناء_الطلاق",
+          "Group ID": 89
+        }
+      },
+      {
+        "json": {
+          "row_number": 535,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_durante_un_divorcio",
+          "Group ID": 89
+        }
+      },
+      {
+        "json": {
+          "row_number": 536,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_retirees_on_a_budget",
+          "Group ID": 90
+        }
+      },
+      {
+        "json": {
+          "row_number": 537,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Rentner_mit_knappem_Budget",
+          "Group ID": 90
+        }
+      },
+      {
+        "json": {
+          "row_number": 538,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_retraités_à_budget_limitée",
+          "Group ID": 90
+        }
+      },
+      {
+        "json": {
+          "row_number": 539,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县低预算退休者搬迁",
+          "Group ID": 90
+        }
+      },
+      {
+        "json": {
+          "row_number": 540,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للمتقاعدين_بميزانية_محدودة",
+          "Group ID": 90
+        }
+      },
+      {
+        "json": {
+          "row_number": 541,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_jubilados_con_presupuesto_limitado",
+          "Group ID": 90
+        }
+      },
+      {
+        "json": {
+          "row_number": 542,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_private_gardens_in_Los_Angeles",
+          "Group ID": 91
+        }
+      },
+      {
+        "json": {
+          "row_number": 543,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_privaten_Gärten_in_Los_Angeles",
+          "Group ID": 91
+        }
+      },
+      {
+        "json": {
+          "row_number": 544,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_jardins_privés_à_Los_Angeles",
+          "Group ID": 91
+        }
+      },
+      {
+        "json": {
+          "row_number": 545,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带私人花园的住宅",
+          "Group ID": 91
+        }
+      },
+      {
+        "json": {
+          "row_number": 546,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بحدائق_خاصة_في_لوس_أنجلوس",
+          "Group ID": 91
+        }
+      },
+      {
+        "json": {
+          "row_number": 547,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_jardines_privados_en_Los_Angeles",
+          "Group ID": 91
+        }
+      },
+      {
+        "json": {
+          "row_number": 548,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Upscaling_your_San_Diego_home_for_sale",
+          "Group ID": 92
+        }
+      },
+      {
+        "json": {
+          "row_number": 549,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Aufwertung_Ihres_San_Diego_Hauses_für_den_Verkauf",
+          "Group ID": 92
+        }
+      },
+      {
+        "json": {
+          "row_number": 550,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Amélioration_de_votre_maison_à_San_Diego_pour_la_vente",
+          "Group ID": 92
+        }
+      },
+      {
+        "json": {
+          "row_number": 551,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售的升级改造",
+          "Group ID": 92
+        }
+      },
+      {
+        "json": {
+          "row_number": 552,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تحسين_منزلك_في_سان_دييغو_للبيع",
+          "Group ID": 92
+        }
+      },
+      {
+        "json": {
+          "row_number": 553,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Mejorar_tu_casa_en_San_Diego_para_la_venta",
+          "Group ID": 92
+        }
+      },
+      {
+        "json": {
+          "row_number": 554,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_eco-conscious_living",
+          "Group ID": 93
+        }
+      },
+      {
+        "json": {
+          "row_number": 555,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_ökobewusstes_Leben",
+          "Group ID": 93
+        }
+      },
+      {
+        "json": {
+          "row_number": 556,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_un_mode_de_vie_écoresponsable",
+          "Group ID": 93
+        }
+      },
+      {
+        "json": {
+          "row_number": 557,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县环保意识生活搬迁",
+          "Group ID": 93
+        }
+      },
+      {
+        "json": {
+          "row_number": 558,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_للعيش_بوعي_بيئي",
+          "Group ID": 93
+        }
+      },
+      {
+        "json": {
+          "row_number": 559,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_una_vida_eco-consciente",
+          "Group ID": 93
+        }
+      },
+      {
+        "json": {
+          "row_number": 560,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Craftsman_style_homes_for_sale_in_Los_Angeles",
+          "Group ID": 94
+        }
+      },
+      {
+        "json": {
+          "row_number": 561,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_im_Craftsman-Stil_zum_Verkauf_in_Los_Angeles",
+          "Group ID": 94
+        }
+      },
+      {
+        "json": {
+          "row_number": 562,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_de_style_Craftsman_à_vendre_à_Los_Angeles",
+          "Group ID": 94
+        }
+      },
+      {
+        "json": {
+          "row_number": 563,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶工匠风格住宅出售",
+          "Group ID": 94
+        }
+      },
+      {
+        "json": {
+          "row_number": 564,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_على_طراز_كرافتسمان_للبيع_في_لوس_أنجلوس",
+          "Group ID": 94
+        }
+      },
+      {
+        "json": {
+          "row_number": 565,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_de_estilo_Craftsman_en_venta_en_Los_Angeles",
+          "Group ID": 94
+        }
+      },
+      {
+        "json": {
+          "row_number": 566,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_with_low_budget",
+          "Group ID": 95
+        }
+      },
+      {
+        "json": {
+          "row_number": 567,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_mit_knappem_Budget",
+          "Group ID": 95
+        }
+      },
+      {
+        "json": {
+          "row_number": 568,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_avec_un_petit_budget",
+          "Group ID": 95
+        }
+      },
+      {
+        "json": {
+          "row_number": 569,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "低预算出售圣地亚哥房屋",
+          "Group ID": 95
+        }
+      },
+      {
+        "json": {
+          "row_number": 570,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_بميزانية_منخفضة",
+          "Group ID": 95
+        }
+      },
+      {
+        "json": {
+          "row_number": 571,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_con_presupuesto_bajo",
+          "Group ID": 95
+        }
+      },
+      {
+        "json": {
+          "row_number": 572,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_nature_lovers",
+          "Group ID": 96
+        }
+      },
+      {
+        "json": {
+          "row_number": 573,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Naturliebhaber",
+          "Group ID": 96
+        }
+      },
+      {
+        "json": {
+          "row_number": 574,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_amateurs_de_nature",
+          "Group ID": 96
+        }
+      },
+      {
+        "json": {
+          "row_number": 575,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县自然爱好者搬迁",
+          "Group ID": 96
+        }
+      },
+      {
+        "json": {
+          "row_number": 576,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لعشاق_الطبيعة",
+          "Group ID": 96
+        }
+      },
+      {
+        "json": {
+          "row_number": 577,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_amantes_de_la_naturaleza",
+          "Group ID": 96
+        }
+      },
+      {
+        "json": {
+          "row_number": 578,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_panorama_views_in_Los_Angeles",
+          "Group ID": 97
+        }
+      },
+      {
+        "json": {
+          "row_number": 579,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Panoramablick_in_Los_Angeles",
+          "Group ID": 97
+        }
+      },
+      {
+        "json": {
+          "row_number": 580,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_vues_panoramiques_à_Los_Angeles",
+          "Group ID": 97
+        }
+      },
+      {
+        "json": {
+          "row_number": 581,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶全景视野住宅",
+          "Group ID": 97
+        }
+      },
+      {
+        "json": {
+          "row_number": 582,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بإطلالات_بانورامية_في_لوس_أنجلوس",
+          "Group ID": 97
+        }
+      },
+      {
+        "json": {
+          "row_number": 583,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_vistas_panorámicas_en_Los_Angeles",
+          "Group ID": 97
+        }
+      },
+      {
+        "json": {
+          "row_number": 584,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Maximizing_exposure_for_San_Diego_home_sale",
+          "Group ID": 98
+        }
+      },
+      {
+        "json": {
+          "row_number": 585,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Maximierung_der_Sichtbarkeit_für_den_San_Diego_Hausverkauf",
+          "Group ID": 98
+        }
+      },
+      {
+        "json": {
+          "row_number": 586,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Maximiser_l’exposition_pour_la_vente_de_votre_maison_à_San_Diego",
+          "Group ID": 98
+        }
+      },
+      {
+        "json": {
+          "row_number": 587,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "最大化圣地亚哥房屋出售的曝光度",
+          "Group ID": 98
+        }
+      },
+      {
+        "json": {
+          "row_number": 588,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "تعظيم_التعرض_لبيع_منزل_في_سان_دييغو",
+          "Group ID": 98
+        }
+      },
+      {
+        "json": {
+          "row_number": 589,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Maximizar_la_exposición_para_la_venta_de_tu_casa_en_San_Diego",
+          "Group ID": 98
+        }
+      },
+      {
+        "json": {
+          "row_number": 590,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_urban_lifestyle",
+          "Group ID": 99
+        }
+      },
+      {
+        "json": {
+          "row_number": 591,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_urbanen_Lebensstil",
+          "Group ID": 99
+        }
+      },
+      {
+        "json": {
+          "row_number": 592,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_un_mode_de_vie_urbain",
+          "Group ID": 99
+        }
+      },
+      {
+        "json": {
+          "row_number": 593,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县城市生活方式搬迁",
+          "Group ID": 99
+        }
+      },
+      {
+        "json": {
+          "row_number": 594,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لنمط_حياة_حضري",
+          "Group ID": 99
+        }
+      },
+      {
+        "json": {
+          "row_number": 595,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_un_estilo_de_vida_urbano",
+          "Group ID": 99
+        }
+      },
+      {
+        "json": {
+          "row_number": 596,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Multi-family_homes_for_sale_in_Los_Angeles",
+          "Group ID": 100
+        }
+      },
+      {
+        "json": {
+          "row_number": 597,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Mehrfamilienhäuser_zum_Verkauf_in_Los_Angeles",
+          "Group ID": 100
+        }
+      },
+      {
+        "json": {
+          "row_number": 598,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_multifamiliales_à_vendre_à_Los_Angeles",
+          "Group ID": 100
+        }
+      },
+      {
+        "json": {
+          "row_number": 599,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶多户住宅出售",
+          "Group ID": 100
+        }
+      },
+      {
+        "json": {
+          "row_number": 600,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_متعددة_العائلات_للبيع_في_لوس_أنجلوس",
+          "Group ID": 100
+        }
+      },
+      {
+        "json": {
+          "row_number": 601,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_multifamiliares_en_venta_en_Los_Angeles",
+          "Group ID": 100
+        }
+      },
+      {
+        "json": {
+          "row_number": 602,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_with_tenants",
+          "Group ID": 101
+        }
+      },
+      {
+        "json": {
+          "row_number": 603,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_mit_Mietern",
+          "Group ID": 101
+        }
+      },
+      {
+        "json": {
+          "row_number": 604,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_avec_locataires",
+          "Group ID": 101
+        }
+      },
+      {
+        "json": {
+          "row_number": 605,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "带租户出售圣地亚哥房屋",
+          "Group ID": 101
+        }
+      },
+      {
+        "json": {
+          "row_number": 606,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_مع_مستأجرين",
+          "Group ID": 101
+        }
+      },
+      {
+        "json": {
+          "row_number": 607,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_con_inquilinos",
+          "Group ID": 101
+        }
+      },
+      {
+        "json": {
+          "row_number": 608,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_hiking_enthusiasts",
+          "Group ID": 102
+        }
+      },
+      {
+        "json": {
+          "row_number": 609,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Wanderbegeisterte",
+          "Group ID": 102
+        }
+      },
+      {
+        "json": {
+          "row_number": 610,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_passionnés_de_randonnée",
+          "Group ID": 102
+        }
+      },
+      {
+        "json": {
+          "row_number": 611,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县徒步爱好者搬迁",
+          "Group ID": 102
+        }
+      },
+      {
+        "json": {
+          "row_number": 612,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لعشاق_المشي_لمسافات_طويلة",
+          "Group ID": 102
+        }
+      },
+      {
+        "json": {
+          "row_number": 613,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_entusiastas_del_senderismo",
+          "Group ID": 102
+        }
+      },
+      {
+        "json": {
+          "row_number": 614,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_gourmet_kitchens_in_Los_Angeles",
+          "Group ID": 103
+        }
+      },
+      {
+        "json": {
+          "row_number": 615,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Gourmetküchen_in_Los_Angeles",
+          "Group ID": 103
+        }
+      },
+      {
+        "json": {
+          "row_number": 616,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_cuisines_gastronomiques_à_Los_Angeles",
+          "Group ID": 103
+        }
+      },
+      {
+        "json": {
+          "row_number": 617,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带美食厨房的住宅",
+          "Group ID": 103
+        }
+      },
+      {
+        "json": {
+          "row_number": 618,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بمطابخ_فاخرة_في_لوس_أنجلوس",
+          "Group ID": 103
+        }
+      },
+      {
+        "json": {
+          "row_number": 619,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_cocinas_gourmet_en_Los_Angeles",
+          "Group ID": 103
+        }
+      },
+      {
+        "json": {
+          "row_number": 620,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Legal_considerations_for_San_Diego_home_sale",
+          "Group ID": 104
+        }
+      },
+      {
+        "json": {
+          "row_number": 621,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Rechtliche_Überlegungen_für_den_San_Diego_Hausverkauf",
+          "Group ID": 104
+        }
+      },
+      {
+        "json": {
+          "row_number": 622,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Considérations_légales_pour_la_vente_de_votre_maison_à_San_Diego",
+          "Group ID": 104
+        }
+      },
+      {
+        "json": {
+          "row_number": 623,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售的法律考量",
+          "Group ID": 104
+        }
+      },
+      {
+        "json": {
+          "row_number": 624,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "الاعتبارات_القانونية_لبيع_منزل_في_سان_دييغو",
+          "Group ID": 104
+        }
+      },
+      {
+        "json": {
+          "row_number": 625,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Consideraciones_legales_para_la_venta_de_tu_casa_en_San_Diego",
+          "Group ID": 104
+        }
+      },
+      {
+        "json": {
+          "row_number": 626,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_yoga_enthusiasts",
+          "Group ID": 105
+        }
+      },
+      {
+        "json": {
+          "row_number": 627,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Yogabegeisterte",
+          "Group ID": 105
+        }
+      },
+      {
+        "json": {
+          "row_number": 628,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_passionnés_de_yoga",
+          "Group ID": 105
+        }
+      },
+      {
+        "json": {
+          "row_number": 629,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县瑜伽爱好者搬迁",
+          "Group ID": 105
+        }
+      },
+      {
+        "json": {
+          "row_number": 630,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لعشاق_اليوغا",
+          "Group ID": 105
+        }
+      },
+      {
+        "json": {
+          "row_number": 631,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_entusiastas_del_yoga",
+          "Group ID": 105
+        }
+      },
+      {
+        "json": {
+          "row_number": 632,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_home_gyms_in_Los_Angeles",
+          "Group ID": 106
+        }
+      },
+      {
+        "json": {
+          "row_number": 633,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_Heimfitnessräumen_in_Los_Angeles",
+          "Group ID": 106
+        }
+      },
+      {
+        "json": {
+          "row_number": 634,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_salles_de_sport_à_domicile_à_Los_Angeles",
+          "Group ID": 106
+        }
+      },
+      {
+        "json": {
+          "row_number": 635,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带家庭健身房的住宅",
+          "Group ID": 106
+        }
+      },
+      {
+        "json": {
+          "row_number": 636,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بصالات_رياضية_منزلية_في_لوس_أنجلوس",
+          "Group ID": 106
+        }
+      },
+      {
+        "json": {
+          "row_number": 637,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_gimnasios_en_casa_en_Los_Angeles",
+          "Group ID": 106
+        }
+      },
+      {
+        "json": {
+          "row_number": 638,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Selling_your_San_Diego_home_as_is",
+          "Group ID": 107
+        }
+      },
+      {
+        "json": {
+          "row_number": 639,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Verkauf_Ihres_San_Diego_Hauses_im_Ist-Zustand",
+          "Group ID": 107
+        }
+      },
+      {
+        "json": {
+          "row_number": 640,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vendre_votre_maison_à_San_Diego_telle_quelle",
+          "Group ID": 107
+        }
+      },
+      {
+        "json": {
+          "row_number": 641,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "原样出售圣地亚哥房屋",
+          "Group ID": 107
+        }
+      },
+      {
+        "json": {
+          "row_number": 642,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "بيع_منزلك_في_سان_دييغو_كما_هو",
+          "Group ID": 107
+        }
+      },
+      {
+        "json": {
+          "row_number": 643,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Vender_tu_casa_en_San_Diego_tal_cual",
+          "Group ID": 107
+        }
+      },
+      {
+        "json": {
+          "row_number": 644,
+          "Language": "EN",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Relocating_to_Orange_County_for_cyclists",
+          "Group ID": 108
+        }
+      },
+      {
+        "json": {
+          "row_number": 645,
+          "Language": "DE",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Umzug_nach_Orange_County_für_Radfahrer",
+          "Group ID": 108
+        }
+      },
+      {
+        "json": {
+          "row_number": 646,
+          "Language": "FR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Déménager_à_Orange_County_pour_les_cyclistes",
+          "Group ID": 108
+        }
+      },
+      {
+        "json": {
+          "row_number": 647,
+          "Language": "ZH",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "橙县自行车爱好者搬迁",
+          "Group ID": 108
+        }
+      },
+      {
+        "json": {
+          "row_number": 648,
+          "Language": "AR",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "الانتقال_إلى_مدينة_أورانج_لراكبي_الدراجات",
+          "Group ID": 108
+        }
+      },
+      {
+        "json": {
+          "row_number": 649,
+          "Language": "ES",
+          "City": "Orange_County",
+          "Topic": "Relocating",
+          "Keyword": "Mudarse_a_Orange_County_para_ciclistas",
+          "Group ID": 108
+        }
+      },
+      {
+        "json": {
+          "row_number": 650,
+          "Language": "EN",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Homes_with_vintage_charm_in_Los_Angeles",
+          "Group ID": 109
+        }
+      },
+      {
+        "json": {
+          "row_number": 651,
+          "Language": "DE",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Häuser_mit_vintagem_Charme_in_Los_Angeles",
+          "Group ID": 109
+        }
+      },
+      {
+        "json": {
+          "row_number": 652,
+          "Language": "FR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Maisons_avec_charme_vintage_à_Los_Angeles",
+          "Group ID": 109
+        }
+      },
+      {
+        "json": {
+          "row_number": 653,
+          "Language": "ZH",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "洛杉矶带复古魅力的住宅",
+          "Group ID": 109
+        }
+      },
+      {
+        "json": {
+          "row_number": 654,
+          "Language": "AR",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "منازل_بسحر_كلاسيكي_في_لوس_أنجلوس",
+          "Group ID": 109
+        }
+      },
+      {
+        "json": {
+          "row_number": 655,
+          "Language": "ES",
+          "City": "Los_Angeles",
+          "Topic": "Buying",
+          "Keyword": "Casas_con_encanto_vintage_en_Los_Angeles",
+          "Group ID": 109
+        }
+      },
+      {
+        "json": {
+          "row_number": 656,
+          "Language": "EN",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Fast_closing_tips_for_San_Diego_home_sale",
+          "Group ID": 110
+        }
+      },
+      {
+        "json": {
+          "row_number": 657,
+          "Language": "DE",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Tipps_für_schnellen_Abschluss_des_San_Diego_Hausverkaufs",
+          "Group ID": 110
+        }
+      },
+      {
+        "json": {
+          "row_number": 658,
+          "Language": "FR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Conseils_pour_une_fermeture_rapide_de_la_vente_à_San_Diego",
+          "Group ID": 110
+        }
+      },
+      {
+        "json": {
+          "row_number": 659,
+          "Language": "ZH",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "圣地亚哥房屋出售的快速成交技巧",
+          "Group ID": 110
+        }
+      },
+      {
+        "json": {
+          "row_number": 660,
+          "Language": "AR",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "نصائح_لإتمام_سريع_لبيع_منزل_في_سان_دييغو",
+          "Group ID": 110
+        }
+      },
+      {
+        "json": {
+          "row_number": 661,
+          "Language": "ES",
+          "City": "San_Diego",
+          "Topic": "Selling",
+          "Keyword": "Consejos_para_un_cierre_rápido_de_la_venta_en_San_Diego",
+          "Group ID": 110
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bc11eac3-b47f-47bd-b206-77c7bdb2b3ca",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9da34d90ad4d4b7cbaeccaaad66977d2d828a5420ba7e26a9e324ff731ec9537"
+  },
+  "id": "C3gSBHwzhZdVkEdj",
+  "tags": []
+}
