@@ -1,0 +1,653 @@
+{
+  "name": "Feedback Form",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Feedback Form",
+        "formDescription": "Please fill the feedback form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Rating",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "1"
+                  },
+                  {
+                    "option": "2"
+                  },
+                  {
+                    "option": "3"
+                  },
+                  {
+                    "option": "4"
+                  },
+                  {
+                    "option": "5"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Feedback Message",
+              "fieldType": "textarea",
+              "placeholder": "Please give your suggestions here..."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.3,
+      "position": [
+        -400,
+        -16
+      ],
+      "id": "9847d9d8-d93b-4f17-aac4-fe8f0efe743b",
+      "name": "On form submission",
+      "webhookId": "984f5ea4-40d6-4a00-bf72-1c3cea798e93"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1GGNAfYZVXgtaqyBA-ZzSxlolrQmjzeG_Fmr5VvQ1sO0",
+          "mode": "list",
+          "cachedResultName": "Feedback Form",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GGNAfYZVXgtaqyBA-ZzSxlolrQmjzeG_Fmr5VvQ1sO0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1GGNAfYZVXgtaqyBA-ZzSxlolrQmjzeG_Fmr5VvQ1sO0/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Rating": "={{ $('Edit Fields').item.json.Rating }}",
+            "Name": "={{ $('Edit Fields').item.json.Name }}",
+            "Email": "={{ $('Edit Fields').item.json.Email }}",
+            "Feedback Message": "={{ $('Edit Fields').item.json['Feedback Message'] }}",
+            "Date and Time submitted": "={{ $('Edit Fields').item.json.Date }}",
+            "Sentiment": "={{ $json.output.sentiment }}",
+            "Category": "={{ $json.output.category }}",
+            "Summary": "={{ $json.output.summary }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Rating",
+              "displayName": "Rating",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Feedback Message",
+              "displayName": "Feedback Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date and Time submitted",
+              "displayName": "Date and Time submitted",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Sentiment",
+              "displayName": "Sentiment",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        288,
+        -16
+      ],
+      "id": "0ac792f4-8904-4aa9-9a9b-37919ffb5361",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r7yeG8ACG7tLO45l",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cd6ce216-f6a1-4b3b-927e-056559978cc4",
+              "leftValue": "={{ $json.Sentiment }}",
+              "rightValue": "Neutral",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "06ef017a-990d-4d4b-89d0-5d18d9c20a0c",
+              "leftValue": "={{ $json.Sentiment }}",
+              "rightValue": "Negative",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        496,
+        -16
+      ],
+      "id": "b2a2efb8-ab80-4b4f-92cf-072735940d6a",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sendTo": "aqib459729@gmail.com",
+        "subject": "=Urgent:Low rating on feedback with sentiment-{{ $('AI Agent').item.json.output.sentiment }}",
+        "emailType": "text",
+        "message": "={{ $json.Name }} has given the rating of {{ $json.Rating }} and the feedback message is '{{ $json['Feedback Message'] }}'.\n\nPlease contact him at {{ $json.Email }} as soon as possible",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        704,
+        -112
+      ],
+      "id": "50c61494-66f0-4672-af02-4813264f2574",
+      "name": "Send a message",
+      "webhookId": "37f12885-de94-4ce3-b3aa-0e079559f553",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Tb9gSe7zgxPrvleG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "aqib459729@gmail.com",
+        "subject": "High Rating: Collect testimonial",
+        "emailType": "text",
+        "message": "={{ $json.Name }} has given the rating of {{ $json.Rating }} and the feedback message is '{{ $json['Feedback Message'] }}'.\n\nPlease contact him at {{ $json.Email }} and collect the testimonial",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        704,
+        96
+      ],
+      "id": "8d08e8c4-38b6-4133-91ad-c130224da6dd",
+      "name": "Send a message1",
+      "webhookId": "37f12885-de94-4ce3-b3aa-0e079559f553",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Tb9gSe7zgxPrvleG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "005b8712-0b3f-43bc-92ac-b880b23611cd",
+              "name": "Rating",
+              "value": "={{ $json.Rating }}",
+              "type": "string"
+            },
+            {
+              "id": "f13a2e3e-36f9-4fba-b4c9-e47ac3042134",
+              "name": "Name",
+              "value": "={{ $json.Name }}",
+              "type": "string"
+            },
+            {
+              "id": "c4547f7c-e8f5-4e28-9143-e4fc91267adf",
+              "name": "Email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "c5268e4e-1868-4686-8aa6-0cb0d74daa36",
+              "name": "Feedback Message",
+              "value": "={{ $json['Feedback Message'] }}",
+              "type": "string"
+            },
+            {
+              "id": "981d83df-c2a6-4115-b5b8-9695ea055e6a",
+              "name": "Date",
+              "value": "={{ $now }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -192,
+        -16
+      ],
+      "id": "614bb9a5-434f-4783-bb7d-b4853af6e6b9",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a helpful assistant analyzing customer feedback. Analyze the user's message below and return a JSON object with three keys: \"sentiment\", \"category\", and \"summary\".\n\nThe \"sentiment\" key must be one of these exact strings: \"Positive\", \"Negative\", or \"Neutral\".\n\nThe \"category\" key must be one of these exact strings: \"Bug Report\", \"Feature Request\", \"General Praise\", or \"Other\".\n\nThe \"summary\" key should be a concise, one-sentence summary of the user's message.\n\nHere is the user's message:\n{{ $json['Feedback Message'] }}\nand user's rating:{{ $json.Rating }}\nIMPORTANT: You MUST reply with ONLY the raw JSON object itself, without any surrounding text, explanations, or markdown formatting like ```json.**",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "2df7dbde-e2a7-47d9-8bd2-a153bccb9e43",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        192
+      ],
+      "id": "5d317c94-0133-46f5-a91c-0cda771a6600",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Z6srxLg2SOj9CRZF",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"sentiment\": \"Negative\",\n    \"category\": \"Bug Report\",\n    \"summary\" : \"The user is reporting that checkout button is not working properly\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        176,
+        192
+      ],
+      "id": "ddec49b5-0737-4187-a4c1-73839b019b5c",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "Rating": "5",
+          "Name": "Aqib Ramzan",
+          "Email": "aqib459729@gmail.com",
+          "Feedback Message": "It is amazing but can it change the color to blue scheme as well",
+          "submittedAt": "2025-08-30T14:50:17.691+05:00",
+          "formMode": "test"
+        }
+      },
+      {
+        "json": {
+          "Rating": "4",
+          "Name": "Ali Ahmad",
+          "Email": "aqibramz@gmail.com",
+          "Feedback Message": "It is amazing but can it change the color to orange scheme as well",
+          "submittedAt": "2025-08-30T14:50:17.691+05:00",
+          "formMode": "test"
+        }
+      },
+      {
+        "json": {
+          "Rating": "3",
+          "Name": "Ali Hamza",
+          "Email": "aramzan.bscs23seecs@seecs.edu.pk",
+          "Feedback Message": "It is amazing but can it change the color to red scheme as well",
+          "submittedAt": "2025-08-30T14:50:17.691+05:00",
+          "formMode": "test"
+        }
+      },
+      {
+        "json": {
+          "Rating": "2",
+          "Name": "Ali Afaq",
+          "Email": "aramzan.bscs23seecs@seecs.edu.pk",
+          "Feedback Message": "Too much issues",
+          "submittedAt": "2025-08-30T14:50:17.691+05:00",
+          "formMode": "test"
+        }
+      }
+    ],
+    "Edit Fields": [
+      {
+        "json": {
+          "Rating": "5",
+          "Name": "Aqib Ramzan",
+          "Email": "aqib459729@gmail.com",
+          "Feedback Message": "It is amazing but can it change the color to blue scheme as well",
+          "Date": "2025-08-30T21:32:08.931+05:00"
+        }
+      },
+      {
+        "json": {
+          "Rating": "4",
+          "Name": "Ali Ahmad",
+          "Email": "aqibramz@gmail.com",
+          "Feedback Message": "It is amazing but can it change the color to orange scheme as well",
+          "Date": "2025-08-30T21:32:08.932+05:00"
+        }
+      },
+      {
+        "json": {
+          "Rating": "3",
+          "Name": "Ali Hamza",
+          "Email": "aramzan.bscs23seecs@seecs.edu.pk",
+          "Feedback Message": "It is amazing but can it change the color to red scheme as well",
+          "Date": "2025-08-30T21:32:08.933+05:00"
+        }
+      },
+      {
+        "json": {
+          "Rating": "2",
+          "Name": "Ali Afaq",
+          "Email": "aramzan.bscs23seecs@seecs.edu.pk",
+          "Feedback Message": "Too much issues",
+          "Date": "2025-08-30T21:32:08.935+05:00"
+        }
+      }
+    ],
+    "AI Agent": [
+      {
+        "json": {
+          "output": {
+            "sentiment": "Positive",
+            "category": "Feature Request",
+            "summary": "The user enjoys the product but would like to see a blue color scheme added."
+          }
+        }
+      },
+      {
+        "json": {
+          "output": {
+            "sentiment": "Positive",
+            "category": "Feature Request",
+            "summary": "The user enjoys the product and requests an orange color scheme feature."
+          }
+        }
+      },
+      {
+        "json": {
+          "output": {
+            "sentiment": "Positive",
+            "category": "Feature Request",
+            "summary": "The user praises the product and requests a red color scheme feature."
+          }
+        }
+      },
+      {
+        "json": {
+          "output": {
+            "sentiment": "Negative",
+            "category": "Bug Report",
+            "summary": "The user is experiencing multiple issues with the product/service."
+          }
+        }
+      }
+    ],
+    "Append or update row in sheet": [
+      {
+        "json": {
+          "Rating": "5",
+          "Name": "Aqib Ramzan",
+          "Email": "aqib459729@gmail.com",
+          "Feedback Message": "It is amazing but can it change the color to blue scheme as well",
+          "Date and Time submitted": "2025-08-30T21:32:08.931+05:00",
+          "Sentiment": "Positive",
+          "Category": "Feature Request",
+          "Summary": "The user enjoys the product but would like to see a blue color scheme added."
+        }
+      },
+      {
+        "json": {
+          "Rating": "4",
+          "Name": "Ali Ahmad",
+          "Email": "aqibramz@gmail.com",
+          "Feedback Message": "It is amazing but can it change the color to orange scheme as well",
+          "Date and Time submitted": "2025-08-30T21:32:08.932+05:00",
+          "Sentiment": "Positive",
+          "Category": "Feature Request",
+          "Summary": "The user enjoys the product and requests an orange color scheme feature."
+        }
+      },
+      {
+        "json": {
+          "Rating": "3",
+          "Name": "Ali Hamza",
+          "Email": "aramzan.bscs23seecs@seecs.edu.pk",
+          "Feedback Message": "It is amazing but can it change the color to red scheme as well",
+          "Date and Time submitted": "2025-08-30T21:32:08.933+05:00",
+          "Sentiment": "Positive",
+          "Category": "Feature Request",
+          "Summary": "The user praises the product and requests a red color scheme feature."
+        }
+      },
+      {
+        "json": {
+          "Rating": "2",
+          "Name": "Ali Afaq",
+          "Email": "aramzan.bscs23seecs@seecs.edu.pk",
+          "Feedback Message": "Too much issues",
+          "Date and Time submitted": "2025-08-30T21:32:08.935+05:00",
+          "Sentiment": "Negative",
+          "Category": "Bug Report",
+          "Summary": "The user is experiencing multiple issues with the product/service."
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "582303d0-0e74-4152-b06e-de8f209f599c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9da34d90ad4d4b7cbaeccaaad66977d2d828a5420ba7e26a9e324ff731ec9537"
+  },
+  "id": "cbzSfO6gdg8DhzvR",
+  "tags": []
+}
