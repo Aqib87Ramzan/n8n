@@ -1,0 +1,458 @@
+{
+  "name": "AI Agent to-do list",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "777d512c-a665-41b4-ad80-6e3e5ee08c92",
+      "name": "When chat message received",
+      "webhookId": "be0c492a-488a-41a2-86ff-bc81d89359d4"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are a friendly and efficient to-do list assistant.\n\nYou will help the user manage their tasks in a Google Sheet, which uses a checkbox for the status (TRUE for done, FALSE for not done).\n\nToday is\n{{DateTime.now().setZone('Asia/Kolkata').toISODate() }}.\n\n\nYour primary rules are:\n\n1. When adding a task, a new unchecked item is created. Confirm with the user what has been added.\n\n2. When listing tasks, tell the user whether each task is 'Completed' (checked) or 'To-Do' (unchecked). Include the Task ID.\n\n3. IMPORTANT for Updating/Deleting Tasks:\n\n   * The user will NOT provide a Task ID. They will refer to a task by its name (e.g., \"the report task\").\n   * When asked to update or delete a task, your FIRST step is to use the 'List Tasks' tool to find the full name and exact Task ID of the matching task.\n   * Your SECOND step is to ask the user for confirmation. For example, say \"Do you want to mark 'Prepare weekly report' as completed? Please confirm.\"\n   * ONLY after the user confirms, you will use the 'Update a Task' or 'Delete a Task' tool with the correct Task ID. For updates, you will set the status to TRUE for completed tasks.\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d4ffd3eb-b6d5-47cc-9647-2168b7b95a5b",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        224
+      ],
+      "id": "b50eb130-90ae-49ce-b1f7-9ea8bcbeb6e6",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        96,
+        224
+      ],
+      "id": "77439c35-39d7-420d-907d-3d30241ad79c",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolCalculator",
+      "typeVersion": 1,
+      "position": [
+        224,
+        224
+      ],
+      "id": "b2ea9748-2bd7-442c-894e-a2e7c0bd09e6",
+      "name": "Calculator"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Append or update row in sheet in Google Sheets.\nAlso Ai should extract the task description from user message",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg",
+          "mode": "list",
+          "cachedResultName": "To_Do List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Task Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Task_Name', ``, 'string') }}",
+            "Status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Status', ``, 'string') }}",
+            "Date Added": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Date_Added', ``, 'string') }}",
+            "Task ID": "={{ \"Task-\" + Date.now() }}"
+          },
+          "matchingColumns": [
+            "Task ID"
+          ],
+          "schema": [
+            {
+              "id": "Task ID",
+              "displayName": "Task ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        352,
+        224
+      ],
+      "id": "03d55416-bab9-48b3-979c-b397f5a24dfd",
+      "name": "Add new task",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r7yeG8ACG7tLO45l",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get all tasks from the to-do list. It should be used to find the specific task's ID before updating or deleting.",
+        "documentId": {
+          "__rl": true,
+          "value": "16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg",
+          "mode": "list",
+          "cachedResultName": "To_Do List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        480,
+        224
+      ],
+      "id": "54cee750-dd59-456d-8b65-5e9daa62079d",
+      "name": "Get tasks lists",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r7yeG8ACG7tLO45l",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Updates the status of a specific task. To mark a task as completed, set its status to TRUE. To mark it as not completed, set its status to FALSE. This requires the unique Task ID.",
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg",
+          "mode": "list",
+          "cachedResultName": "To_Do List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Task ID": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Task_ID__using_to_match_', ``, 'string') }}",
+            "Task Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Task_Name', ``, 'string') }}",
+            "Status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Status', ``, 'string') }}",
+            "Date Added": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Date_Added', ``, 'string') }}"
+          },
+          "matchingColumns": [
+            "Task ID"
+          ],
+          "schema": [
+            {
+              "id": "Task ID",
+              "displayName": "Task ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Task Name",
+              "displayName": "Task Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date Added",
+              "displayName": "Date Added",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        608,
+        224
+      ],
+      "id": "c46ed713-97c9-477c-9c90-8a3e4329a67a",
+      "name": "Update tasks",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r7yeG8ACG7tLO45l",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete tasks in todo list",
+        "operation": "remove",
+        "documentId": {
+          "__rl": true,
+          "value": "16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg",
+          "mode": "list",
+          "cachedResultName": "To_Do List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16WvALeTYkbUW9Uqmrxw4tASTO0wFkgdNArD9Akpc4Kg/edit#gid=0"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        736,
+        224
+      ],
+      "id": "18c94ae1-a401-4a2d-85bf-c5dc1c51d1d5",
+      "name": "Delete tasks",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "r7yeG8ACG7tLO45l",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -160,
+        224
+      ],
+      "id": "5009160c-5986-49be-a8fa-72a5a60831f3",
+      "name": "Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "Z6srxLg2SOj9CRZF",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculator": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add new task": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get tasks lists": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update tasks": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete tasks": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e84ad0a4-559b-4bc0-b366-6843ab8b1447",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9da34d90ad4d4b7cbaeccaaad66977d2d828a5420ba7e26a9e324ff731ec9537"
+  },
+  "id": "spA61MMOcMtoAgzD",
+  "tags": []
+}
