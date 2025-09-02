@@ -1,0 +1,525 @@
+{
+  "name": "Newsletter System",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -944,
+        -48
+      ],
+      "id": "522753e8-1b51-48d6-8b88-4841f7c9c262",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "query": "AI adoption for small bussinesses",
+        "options": {
+          "topic": "news",
+          "max_results": 3,
+          "time_range": "week"
+        }
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavily",
+      "typeVersion": 1,
+      "position": [
+        -720,
+        -48
+      ],
+      "id": "4681c2ea-143e-49a0-871d-ccb76f6649af",
+      "name": "Initial Search",
+      "credentials": {
+        "tavilyApi": {
+          "id": "UZaJxsESXatu4guH",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        272,
+        224
+      ],
+      "id": "2b68cfae-4def-4f04-abce-481a3457cfb4",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "XLrh9250QNoDrtvW",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"required\": [\"title\",\"topic\"],\n  \"properties\": {\n    \"title\": {\n      \"type\": \"string\",\n      \"description\": \"A short, descriptive title\"\n    },\n    \"topics\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n    },\n    \"minItems\": 3,\n    \"maxItems\": 3,\n    \"description\": \"An array of exactly three topics\"\n  },\n  \"additionalProperties\": false\n}\n\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -352,
+        224
+      ],
+      "id": "775be7ae-44ad-419e-8c83-aeadd296d542",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.topics",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        -48
+      ],
+      "id": "e1adff50-6868-4130-8977-05887bebafaf",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "query": "={{ $json['output.topics'] }}",
+        "options": {
+          "time_range": "month",
+          "include_raw_content": true
+        }
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavily",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -48
+      ],
+      "id": "0b408055-69f2-4ec5-a4fa-31a9eec2ac05",
+      "name": "Research Topics",
+      "credentials": {
+        "tavilyApi": {
+          "id": "UZaJxsESXatu4guH",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Topic:{{ $json.query }}\n\nResearch:\n{{ $json.results.map(item => JSON.stringify(item,null,2)).join('\\n\\n') }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are a professional newsletter section writer. Your only task is to write one standalone section of a newsletter.\n\n## Instructions\n-Always include a clear section heading followed by the section content.\n-Do not write an overall title, introduction, or conclusion.\n-Write in a professional, expert, and engaging tone suitable for a business newsletter.\n-If you reference facts, data, or quotes, you must cite your sources and provide the actual clickable URLs.\n-No fictional citations—only include real, verifiable sources.\n-Keep the section concise, well-structured, and easy to read."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        304,
+        -48
+      ],
+      "id": "d35061d0-e888-4bbd-89b0-1b750a8bcc94",
+      "name": "Section Writer Agent"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "output"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        656,
+        -48
+      ],
+      "id": "c4486916-cfc3-4bb4-9f78-08db8c4234e6",
+      "name": "Aggregate"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Title:{{ $('Planning Agent').item.json.output.title }}\nSections:\n{{ $json.output.join('\\n\\n\\n') }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert newsletter editor. \nYour only job is to return a valid JSON object that matches this schema:\n\n{\n  \"subject\": \"string, the email subject (max 80 characters)\",\n  \"content\": \"string, the full HTML body of the newsletter\"\n}\n\nRules:\n- Output ONLY JSON, no explanations.\n- The `content` field must contain HTML as a single string.\n- Escape any double quotes inside HTML attributes.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        -48
+      ],
+      "id": "aa3be109-bbe6-4fc3-a542-6592206eb25b",
+      "name": "Editor Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.results.map(item => JSON.stringify(item,null,2)).join('\\n\\n') }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "# Overview\nYou are an expert newsletter planner. You will receive three articles from the past week. Your job is to come up with a creative and fun title as well as the main topics for this newsletter.\n## Instructions\nThe newsletter should flow nicely, feel informative, and holistic. The topics should be 3–5 words."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        -48
+      ],
+      "id": "c3fa04e8-5c6b-49b5-b6b5-4074d47d9bea",
+      "name": "Planning Agent"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject\": {\n      \"type\": \"string\",\n      \"description\": \"the email subject\"\n    },\n    \"content\": {\n      \"type\": \"string\",\n      \"description\": \"the newsletter content\"\n    }\n  },\n  \"required\": [\"subject\", \"content\"]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1024,
+        208
+      ],
+      "id": "bad9077c-b3c7-41ff-b75d-a51b7964ca45",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $json.subject }}",
+        "emailType": "html",
+        "message": "={{ $json.content }}",
+        "options": {
+          "sendTo": "aqib459729@gmail.com"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1456,
+        -48
+      ],
+      "id": "1e79d4f4-2ac0-434f-82fc-448cbee39267",
+      "name": "Create a draft",
+      "webhookId": "22c61d6f-4945-4e4b-8684-c8b7f3403567",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "Tb9gSe7zgxPrvleG",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "74152051-f195-4c76-b0e8-0e7669a4b8f5",
+              "name": "subject",
+              "value": "={{ $json.output.properties.subject }}",
+              "type": "string"
+            },
+            {
+              "id": "6683b4b0-2f5f-40ea-8353-e475b31cd034",
+              "name": "content",
+              "value": "={{ $json.output.properties.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1232,
+        -48
+      ],
+      "id": "65a82f9b-cff6-4a9d-90e7-2963165f2b21",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {
+    "Initial Search": [
+      {
+        "json": {
+          "query": "AI adoption for small bussinesses",
+          "follow_up_questions": null,
+          "answer": null,
+          "images": [],
+          "results": [
+            {
+              "url": "https://www.newscientist.com/article/2493126-accelerate-your-small-business-with-this-ai-toolkit/",
+              "title": "Accelerate your small business with this AI toolkit - New Scientist",
+              "score": 0.7707586,
+              "published_date": "Thu, 28 Aug 2025 17:00:07 GMT",
+              "content": "Social media postings are just one of the many applications of AI that has enabled Low’s small business Zeepy to hit dizzying heights. Zeepy is just one example of how a newly available range of AI apps are changing the way firms can do business. “Used well, AI has the power to transform how small businesses operate,” says Tina McKenzie, Policy Chair at the UK’s Federation of Small Businesses. “Now the human can move onto doing other work, knowing that the agentic AI will pull them in if needed.” As more agentic AIs are deployed online, they are likely to connect and collaborate with each other, creating a whole new dynamic in business practice. ### Small business-friendly AI apps with big potential",
+              "raw_content": null
+            },
+            {
+              "url": "https://fintechmagazine.com/news/smbs-turn-to-ai-for-advice-while-trusting-tech-partners",
+              "title": "SMBs Turn to AI for Advice While Trusting Tech Partners - FinTech Magazine",
+              "score": 0.7265231,
+              "published_date": "Tue, 02 Sep 2025 09:22:24 GMT",
+              "content": "More than half of UK small and medium business owners now consult artificial intelligence tools for operational guidance, while maintaining trust in their established technology partnerships, according to research from Worldpay. The research shows 93% of SMB owners continue to rely on family and friends for business guidance, suggesting entrepreneurs build diversified advisory networks rather than replace traditional relationships. As business owners increasingly combine AI tools, social platforms, and personal networks for advice, their technology solutions must support this multi-channel approach. This evolution reflects the complexity of modern business operations, where owners must navigate technological change while maintaining the personal relationships that provide emotional support and local knowledge. Payment providers are adapting their offerings accordingly, creating solutions that support businesses operating across multiple channels and guidance sources.",
+              "raw_content": null
+            },
+            {
+              "url": "https://www.ainvest.com/news/gen-secret-weapon-teaching-ai-older-workforce-2508/",
+              "title": "Gen Z's Secret Weapon: Teaching AI to the Older Workforce - AInvest",
+              "score": 0.53925073,
+              "published_date": "Wed, 27 Aug 2025 16:25:45 GMT",
+              "content": "- Comparing AI to the PC revolution, Cuban emphasizes strategic adoption over tool accumulation, echoed by leaders like Tim Cook and Jensen Huang. Mark Cuban, the billionaire investor and former Shark Tank star, has outlined a compelling vision for how artificial intelligence (AI) is reshaping the business landscape and creating new opportunities for Gen Z workers. Source: [1] Billionaire Mark Cuban says 'companies don't understand' (https://fortune.com/2025/08/26/billionaire-mark-cuban-gen-z-job-opportunity-teach-ai-implementation-companies-struggles-to-understand-future-of-work-former-shark-tank-star/) [2] Billionaire Mark Cuban says that 'companies don't understand (https://finance.yahoo.com/news/billionaire-mark-cuban-says-companies-153339351.html) [3] Mark Cuban Says Young People Should Learn This (https://www.inc.com/ben-sherry/mark-cuban-says-young-people-should-learn-this-crucial-ai-skill/91230809) [4] AI adoption surges among South Africa's SMBs (https://www.zawya.com/en/economy/africa/ai-adoption-surges-among-south-africas-smbs-peu44xxo) [5] SMB cloud adoption trends and impact in 2025 - Cloudtech (https://www.cloudtech.com/resources/smb-cloud-adoption-trends-impact) [6] Shoot First to Win: HubSpot's Head of AI on Integrating AI (https://www.saltedstone.com/blog/hubspots-head-of-ai-on-integrating-ai-for-impact)",
+              "raw_content": null
+            }
+          ],
+          "response_time": 0.13,
+          "request_id": "fc276c70-65cc-4484-90bf-59acd09ac6f8"
+        }
+      }
+    ],
+    "Split Out": [
+      {
+        "json": {
+          "output.topics": "Boosting Business with AI"
+        }
+      },
+      {
+        "json": {
+          "output.topics": "AI Advice & Trusted Partners"
+        }
+      },
+      {
+        "json": {
+          "output.topics": "Gen Z Bridging AI Skills"
+        }
+      }
+    ],
+    "Section Writer Agent": [
+      {
+        "json": {
+          "output": "### The AI Advantage: Driving Growth and Efficiency Across Your Business\n\nArtificial intelligence (AI) has rapidly evolved from a futuristic concept to an indispensable tool for businesses of all sizes, fundamentally reshaping how organizations operate and compete. Today, AI is not just optimizing processes; it's a catalyst for significant growth and heightened productivity.\n\nBusinesses are increasingly leveraging AI to streamline operations and extract actionable insights. Automating repetitive tasks, such as data entry and customer support, not only frees up valuable employee time but also boosts overall efficiency and accuracy [1]. In fact, 61% of workers report that AI implementation has increased their productivity [1]. For instance, AI-powered tools like ChatGPT-driven support bots can autonomously handle routine inquiries, allowing human teams to focus on more complex, strategic challenges [1].\n\nBeyond efficiency, AI is transforming customer engagement and decision-making. By analyzing vast datasets, AI enables personalized product recommendations, targeted marketing campaigns, and real-time support through chatbots, leading to increased customer satisfaction and loyalty [2, 3]. Solutions like Salesforce Einstein utilize machine learning and natural language processing (NLP) to deliver predictive analytics and categorize customer feedback, helping businesses anticipate needs and personalize interactions [1]. Similarly, Google's Duet AI is designed to simplify cloud app development and assist with tasks in Workspace apps, from drafting emails to building workflows [1].\n\nCrucially, the embrace of AI by businesses is often leading to growth and job creation, rather than replacement. A recent Goldman Sachs survey found that 68% of small business owners are already using AI tools, with nearly 40% expecting AI to create new jobs in 2025. Approximately 80% of these small business adopters indicated that AI tools are augmenting their workforce, enhancing capabilities rather than eliminating roles [4].\n\nAI is leveling the playing field, providing a competitive edge by enabling smarter decisions, reducing costs, and fostering innovation [2, 3]. As the landscape continues to evolve, integrating AI responsibly and strategically is becoming a necessity for any business aiming for long-term success.\n\n**Sources:**\n[1] FlippingBook. \"10 Most Popular AI Software For Boosting Your Business Operations.\" *FlippingBook Blog*, https://flippingbook.com/blog/marketing-tips/best-ai-software\n[2] SunNet. \"Transform Your Business: The AI Revolution Is Here.\" *SunNet Blog*, https://sunnet.us/blog/transform-your-business-the-ai-revolution-is-here\n[3] Netguru. \"10 Best Artificial Intelligence Business Applications for 2025.\" *Netguru Blog*, https://www.netguru.com/blog/ai-business-applications\n[4] ASBN. \"Small businesses embrace AI to boost growth, not cut jobs.\" *ASBN*, https://www.asbn.com/scale-your-business/technology/small-businesses-embrace-ai-to-boost-growth-not-cut-jobs/"
+        }
+      },
+      {
+        "json": {
+          "output": "## Navigating AI: The Crucial Role of Trusted Advice and Strategic Partnerships\n\nAs Artificial Intelligence rapidly reshapes industries, organizations are grappling with how to effectively integrate AI while maintaining trust and ensuring ethical practices. The landscape of AI advice is evolving, revealing a clear preference for human expertise, even as AI tools become more accessible.\n\nRecent studies highlight this dynamic. While 53% of small and medium-sized businesses (SMBs) consult platforms like ChatGPT for guidance, a resounding 93% still maintain confidence in their existing technology partners for overall support [Fintech Magazine]. This paradox underscores a broader trend: for critical decisions, human oversight and established relationships remain paramount.\n\nFor instance, new research indicates that 91% of U.S. graduates trust human financial advisors the most, significantly more than AI tools like ChatGPT (49%), when it comes to managing their wealth and planning for the future [Kiplinger]. Similarly, a Northwestern Mutual study found that Americans trust human advisors significantly more than AI alone for tasks such as developing tailored financial plans (53%) and managing investment portfolios (53%) [Northwestern Mutual]. Jeff Sippel, Chief Strategy Officer at Northwestern Mutual, notes, \"Financial planning isn't just about numbers on a spreadsheet – it's an emotional discussion around a person's life goals. These conversations are complex, delicate and deeply personal.\"\n\nHowever, the role of AI is not diminished. Instead, it's shifting towards augmentation rather than replacement. Both the Kiplinger and Northwestern Mutual studies found that a substantial percentage of younger Americans (54% of Gen Z and Millennials) prefer working with financial advisors who understand and utilize AI as a planning tool. This suggests a desire for human expertise enhanced by technological capabilities.\n\nThis evolving need for a hybrid approach—combining human judgment with AI's analytical power—underscores the importance of trusted AI consulting partners. Firms specializing in AI advisory services help organizations \"de-risk AI adoption\" by establishing AI Competence Centers (CC) or Centers of Excellence (COE) to embed trustworthy, ethical, and sustainable AI practices within their operations [Trusted AI]. These partners are instrumental in building business-aligned AI strategies, defining clear use cases, assessing return on investment (ROI), and creating compliant roadmaps for scalable AI integration [Accelerate Partners].\n\nIn essence, while AI offers immense potential, its successful and trustworthy implementation hinges on strategic guidance from expert partners who can bridge the gap between innovation and responsible deployment. Organizations looking to leverage AI effectively must prioritize ethical frameworks, robust governance, and the invaluable insights that only experienced human advisors can provide.\n\n### Sources:\n*   \"SMBs Turn to AI for Advice While Trusting Tech Partners.\" *Fintech Magazine*, [https://fintechmagazine.com/news/smbs-turn-to-ai-for-advice-while-trusting-tech-partners](https://fintechmagazine.com/news/smbs-turn-to-ai-for-advice-while-trusting-tech-partners)\n*   \"Gen Z Trusts Financial Advisers, But AI Skills Matter.\" *Kiplinger*, [https://www.kiplinger.com/retirement/retirement-planning/gen-z-trusts-financial-advisers-but-ai-skills-matter](https://www.kiplinger.com/retirement/retirement-planning/gen-z-trusts-financial-advisers-but-ai-skills-matter)\n*   \"Human Connection Over Machines: Americans Trust Advisors More Than AI for Financial Advice, Finds Northwestern Mutual's 2025 Planning & Progress Study.\" *Northwestern Mutual News*, [https://news.northwesternmutual.com/2025-08-05-Human-Connection-Over-Machines-Americans-Trust-Advisors-More-Than-AI-for-Financial-Advice,-Finds-Northwestern-Mutuals-2025-Planning-Progress-Study](https://news.northwesternmutual.com/2025-08-05-Human-Connection-Over-Machines-Americans-Trust-Advisors-More-Than-AI-for-Financial-Advice,-Finds-Northwestern-Mutuals-2025-Planning-Progress-Study)\n*   \"De-Risk your AI Adoption with Trusted AI Center of Excellence.\" *Trusted AI*, [https://www.trustedai.ai/](https://www.trustedai.ai/)\n*   \"AI Strategy Consulting Services - Accelerate Partners.\" *Accelerate Partners*, [https://time2accelerate.com/artificial-intelligence-ai-consulting/ai-strategy-advisory](https://time2accelerate.com/artificial-intelligence-ai-consulting/ai-strategy-advisory)"
+        }
+      },
+      {
+        "json": {
+          "output": "### Gen Z: The Unexpected AI Educators Driving Workforce Transformation\n\nThe rapid adoption of Artificial Intelligence (AI) across industries has created a critical demand for new skills. While many organizations focus on formal training programs, a significant and organic shift is occurring: Gen Z employees are emerging as key educators, actively bridging the AI skills gap within the workforce.\n\nAs the first truly digital-native generation, Gen Z brings inherent tech confidence and a comfort with experimentation to the workplace. They often perceive AI as an everyday assistant and a tool for creativity and growth, rather than a threat to jobs [Digital Digest, \"AI Won't Take Your Job, But Gen Z with AI Skills Might\"]. This mindset makes them natural early adopters and highly proficient users of AI tools, from content creation platforms to workflow automation.\n\nCrucially, this generation is not just using AI, but teaching it. Recent research highlights that nearly two-thirds (59%) of Gen Z employees are coaching older colleagues on AI tools, fostering significant cross-generational collaboration [Gidgette Osborne, \"New research reveals Gen Z is coaching older colleagues to use AI...\"]. This mentorship extends to navigating virtual platforms and leveraging AI for everyday tasks, with 66% of 25-34 year olds regularly sharing their AI knowledge [Gidgette Osborne].\n\nThe benefits of this dynamic are multifaceted:\n*   **Enhanced Productivity**: Senior Directors report that this support allows them to focus on higher-value tasks, with 80% acknowledging its positive impact [Gidgette Osborne].\n*   **New Business Opportunities**: AI innovations introduced by younger colleagues have unlocked new business avenues for 82% of Senior Directors [Gidgette Osborne].\n*   **Improved Collaboration**: Beyond direct instruction, the exchange of knowledge helps bridge generational divides and fosters a more agile, AI-ready workforce [Gidgette Osborne].\n\nFor organizations aiming to thrive in an AI-driven landscape, embracing and fostering this natural mentorship is paramount. It’s not just about implementing new policies but empowering a culture where younger generations can share their innate digital fluency, thereby elevating the entire workforce and ensuring everyone can work smarter, not just harder [Digital Digest]."
+        }
+      }
+    ],
+    "Planning Agent": [
+      {
+        "json": {
+          "output": {
+            "title": "The AI Advantage: Innovate, Grow, Connect",
+            "topics": [
+              "Boosting Business with AI",
+              "AI Advice & Trusted Partners",
+              "Gen Z Bridging AI Skills"
+            ]
+          }
+        }
+      }
+    ],
+    "Editor Agent": [
+      {
+        "json": {
+          "output": {
+            "type": "object",
+            "properties": {
+              "subject": {
+                "type": "string",
+                "description": "The email subject (max 80 characters)"
+              },
+              "content": {
+                "type": "string",
+                "description": "The full HTML body of the newsletter"
+              }
+            },
+            "required": [
+              "subject",
+              "content"
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Initial Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initial Search": {
+      "main": [
+        [
+          {
+            "node": "Planning Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Planning Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Section Writer Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Editor Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Planning Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Research Topics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Topics": {
+      "main": [
+        [
+          {
+            "node": "Section Writer Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Section Writer Agent": {
+      "main": [
+        [
+          {
+            "node": "Aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate": {
+      "main": [
+        [
+          {
+            "node": "Editor Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Planning Agent": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Editor Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Editor Agent": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f47ab2e1-a59a-42e1-a6a4-6f0d8ea5454c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9da34d90ad4d4b7cbaeccaaad66977d2d828a5420ba7e26a9e324ff731ec9537"
+  },
+  "id": "wuK9U9LyPRLl8Zbo",
+  "tags": []
+}
