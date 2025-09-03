@@ -1,0 +1,171 @@
+{
+  "name": "Weather News Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "84392863-bcc0-4512-8c29-1b31deac7796",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast?latitude=24.8607&longitude=67.0011&current=temperature_2m,weather_code,wind_speed_10m&timezone=Asia%2FKarachi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "b726879f-4bac-4c91-bd59-52d29bfcda45",
+      "name": "get Weather info"
+    },
+    {
+      "parameters": {
+        "url": "https://news.google.com/rss?hl=en-PK&gl=PK&ceid=PK:en",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        448,
+        72
+      ],
+      "id": "cb5547c4-72e8-4ed5-ac78-51afdd94224b",
+      "name": "RSS Read (NEWS)"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input: multiple RSS items (title/link in each)\n// Output: single item with news array (top 3)\nconst headlines = items.slice(0, 3).map(i => ({\n  title: i.json.title,\n  link: i.json.link || i.json.guid || ''\n}));\nreturn [{ json: { news: headlines } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        72
+      ],
+      "id": "eb77ec68-68ba-4da5-afbb-cfb48f7d4f7e",
+      "name": "Code (Reduce news to Top 3)"
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "useDataOfInput": 2
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        896,
+        16
+      ],
+      "id": "cf992c3c-3962-46f7-a04e-353ed392ac6a",
+      "name": "Merge (NEWS + Weather)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const weatherData = $(\"get Weather info\")\n  .all()\n  .map((item) => item.json);\n\nconst updatedWeatherData = weatherData.map((data) => {\n  const code = data.current.weather_code;\n  const codeText = ((c) => {\n    if (c === 0) return \"Clear\";\n    if ([1, 2, 3].includes(c)) return \"Partly cloudy\";\n    if ([45, 48].includes(c)) return \"Fog\";\n    if ([51, 53, 55].includes(c)) return \"Drizzle\";\n    if ([61, 63, 65, 80, 81, 82].includes(c)) return \"Rain\";\n    if ([66, 67].includes(c)) return \"Freezing rain\";\n    if ([71, 73, 75, 77, 85, 86].includes(c)) return \"Snow\";\n    if (c === 95) return \"Thunderstorm\";\n  })(code);\n  data.current.weather_text = codeText;\n  return data;\n});\n\nreturn updatedWeatherData;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        16
+      ],
+      "id": "cbbf7a0d-741a-4dd6-82a2-46c614ab6f82",
+      "name": "Format the message"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "get Weather info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get Weather info": {
+      "main": [
+        [
+          {
+            "node": "RSS Read (NEWS)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge (NEWS + Weather)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read (NEWS)": {
+      "main": [
+        [
+          {
+            "node": "Code (Reduce news to Top 3)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code (Reduce news to Top 3)": {
+      "main": [
+        [
+          {
+            "node": "Merge (NEWS + Weather)",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge (NEWS + Weather)": {
+      "main": [
+        [
+          {
+            "node": "Format the message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format the message": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d664c5aa-cad3-43f2-ba7d-5791b095d59d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9da34d90ad4d4b7cbaeccaaad66977d2d828a5420ba7e26a9e324ff731ec9537"
+  },
+  "id": "qfsC9djqGWn4g25x",
+  "tags": []
+}
