@@ -1,0 +1,953 @@
+{
+  "name": "Save Social Media Posts to a Google Sheet",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -336,
+        48
+      ],
+      "id": "161e18ca-aab1-4e7e-b452-b265a5921145",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ebe83f04-5419-4b2a-852d-aa2b586c2769",
+              "name": "title",
+              "value": "={{ $json.feed.title }}",
+              "type": "string"
+            },
+            {
+              "id": "afe46756-778b-4923-afdb-f4f0088f4f90",
+              "name": "=author",
+              "value": "={{ $json.feed.entry[0].author.name }}",
+              "type": "string"
+            },
+            {
+              "id": "db1586b2-ab34-4f44-ac71-acf1801993ff",
+              "name": "link",
+              "value": "={{ $json.feed.link }}",
+              "type": "string"
+            },
+            {
+              "id": "9e43aba4-addf-4142-83ec-9084ac44a83a",
+              "name": "timestamp",
+              "value": "={{ $json.feed.updated }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        560,
+        -96
+      ],
+      "id": "a83c353a-d136-4290-8ee7-621ce2bc9b5b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "405fd270-54fd-4e98-8fba-8cde9d3b00ce",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "newest submissions : automation",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        784,
+        -96
+      ],
+      "id": "de84bf9b-d062-4d85-abbd-54417a250a7d",
+      "name": "If"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "8af75104-ea57-48fb-ab4a-471e2a6e301a",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1_M4iXZ80BffM4P189QssRCdXN909FPUoFW3-rlS-CT4",
+          "mode": "list",
+          "cachedResultName": "automation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_M4iXZ80BffM4P189QssRCdXN909FPUoFW3-rlS-CT4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1_M4iXZ80BffM4P189QssRCdXN909FPUoFW3-rlS-CT4/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "title": "={{ $json.title }}",
+            " author": "={{ $json.author }}",
+            "timestamp": "={{ $json.timestamp }}",
+            " link": "={{ $json.link }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " author",
+              "displayName": " author",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " link",
+              "displayName": " link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        -192
+      ],
+      "id": "c850cbc7-f061-42fc-a46a-f050a88785b9",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ZExetnsx7O3yew0G",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://www.reddit.com/r/automation/new/.rss",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n:reddit-tracker:v1.0 (by /u/LawfulnessSuper8467)"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -112,
+        48
+      ],
+      "id": "d9dd744a-16d8-4b9a-aed3-a0c6ec328bdf",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        336,
+        48
+      ],
+      "id": "cc2574c9-03a5-4c05-b7f2-ce686c03955d",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        560,
+        96
+      ],
+      "id": "b92d4aa4-aaf7-44d9-b268-7fad67936107"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        112,
+        48
+      ],
+      "id": "16826e52-2a75-4a81-b6b1-c13d8c5f233d",
+      "name": "XML"
+    }
+  ],
+  "pinData": {
+    "XML": [
+      {
+        "json": {
+          "feed": {
+            "xmlns": "http://www.w3.org/2005/Atom",
+            "xmlns:media": "http://search.yahoo.com/mrss/",
+            "category": {
+              "term": "automation",
+              "label": "r/automation"
+            },
+            "updated": "2025-09-09T19:53:33+00:00",
+            "icon": "https://www.redditstatic.com/icon.png/",
+            "id": "/r/automation/new/.rss",
+            "link": [
+              {
+                "rel": "self",
+                "href": "https://www.reddit.com/r/automation/new/.rss",
+                "type": "application/atom+xml"
+              },
+              {
+                "rel": "alternate",
+                "href": "https://www.reddit.com/r/automation/new/",
+                "type": "text/html"
+              }
+            ],
+            "subtitle": "Are you fascinated by the wonders of automation, mesmerized by the power of ChatGPT, or intrigued by the endless possibilities of Artificial Intelligence and automation? Look no further! Our vibrant Reddit community is the perfect hub for enthusiasts like you. As a member of our community, you'll gain access to a wealth of resources, including: 🔬 Thought-provoking discussions on automation, ChatGPT, and AI. 🌟 Exclusive insights into the latest advancements and industry news",
+            "title": "newest submissions : automation",
+            "entry": [
+              {
+                "author": {
+                  "name": "/u/laurusbaurus",
+                  "uri": "https://www.reddit.com/user/laurusbaurus"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<table> <tr><td> <a href=\"https://www.reddit.com/r/automation/comments/1ncsmlx/how_to_scrape_google_maps_reviews_with_n8n_and/\"> <img src=\"https://external-preview.redd.it/cqqQZ3YuYeEe2JiUvgPgZ95aHwWxAdlZeF1iyf1eL0E.jpeg?width=640&amp;crop=smart&amp;auto=webp&amp;s=d9cfab4aaa5be458859393f0890237d1e4148aa6\" alt=\"How to Scrape Google Maps Reviews with n8n and Google Sheets\" title=\"How to Scrape Google Maps Reviews with n8n and Google Sheets\" /> </a> </td><td> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/laurusbaurus\"> /u/laurusbaurus </a> <br/> <span><a href=\"https://serpapi.com/blog/how-to-scrape-google-maps-reviews-with-n8n-and-google-sheets/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncsmlx/how_to_scrape_google_maps_reviews_with_n8n_and/\">[comments]</a></span> </td></tr></table>",
+                  "type": "html"
+                },
+                "id": "t3_1ncsmlx",
+                "media:thumbnail": {
+                  "url": "https://external-preview.redd.it/cqqQZ3YuYeEe2JiUvgPgZ95aHwWxAdlZeF1iyf1eL0E.jpeg?width=640&crop=smart&auto=webp&s=d9cfab4aaa5be458859393f0890237d1e4148aa6"
+                },
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncsmlx/how_to_scrape_google_maps_reviews_with_n8n_and/"
+                },
+                "updated": "2025-09-09T19:32:41+00:00",
+                "published": "2025-09-09T19:32:41+00:00",
+                "title": "How to Scrape Google Maps Reviews with n8n and Google Sheets"
+              },
+              {
+                "author": {
+                  "name": "/u/Ch3rry_5t4rdusk",
+                  "uri": "https://www.reddit.com/user/Ch3rry_5t4rdusk"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<table> <tr><td> <a href=\"https://www.reddit.com/r/automation/comments/1ncqgi5/just_shipped_my_first_automationasaservice_build/\"> <img src=\"https://b.thumbs.redditmedia.com/h94ycjUHJHdwFyM_WZLhZ7AppIHMDIewSTz4UdCWJ6w.jpg\" alt=\"Just shipped my first automation-as-a-service build — a Dutch agency’s LinkedIn post machine\" title=\"Just shipped my first automation-as-a-service build — a Dutch agency’s LinkedIn post machine\" /> </a> </td><td> <!-- SC_OFF --><div class=\"md\"><p>Big milestone for me: I just shipped my first client automation project, and it wasn’t some Zapier quick-fix. This was a proper, multi-branch, AI-powered pipeline that turned a painful manual process into something fast, scalable, and client-friendly.</p> <p>Here’s the context:<br/> A Dutch writing agency came to me with a headache:</p> <ul> <li>After every client meeting, they spent hours manually drafting LinkedIn posts.</li> <li>Tone was inconsistent.</li> <li>Turnaround was slow.</li> <li>Scaling this workflow meant hiring more writers — not sustainable.</li> </ul> <p>I turned that into a smooth, feedback-driven automation system. Here’s the <strong>step-by-step build</strong>:</p> <h1>🛠️ The Pipeline (Simplified Overview)</h1> <p><strong>1. Input: Meeting → Transcript</strong></p> <ul> <li>Meeting audio/transcripts are dropped into Google Drive.</li> <li>n8n watches the folder and grabs the file.</li> <li>This is now the single source of truth.</li> </ul> <p><strong>2. Auto Subject Generation</strong></p> <ul> <li>AI parses the transcript, proposes 4–8 subject ideas in the client’s voice.</li> <li>Stored in Google Sheets.</li> <li>Basically: no blank pages, just fast direction.</li> </ul> <p><strong>3. Client-Controlled Branching (via Email)</strong></p> <ul> <li>Those subjects are emailed to the client with simple instructions:Reply “Generate Hooks” or “Create Post.”</li> <li>No dashboard learning curve — just email.</li> <li>Replies trigger the next workflow.</li> </ul> <p><strong>4. Hooks Generation (Workflow 2)</strong></p> <ul> <li>If they ask for hooks, AI + Pinecone (RAG for style/history) generate 6–12 hook ideas.</li> <li>Client picks the one they like best.</li> </ul> <p><strong>5. Full Post Generation (Workflow 3)</strong></p> <ul> <li>Once a hook is selected, AI creates a full LinkedIn post (hook → intro → 2–4 paragraph body → CTA).</li> <li>Uses a formatting guide stored in Pinecone.</li> </ul> <p><strong>6. Feedback-Driven Rewrite (Workflow 4)</strong></p> <ul> <li>If the client replies with tone/length/style feedback, the system rewrites the post using: original post + feedback + historical preferences (via RAG).</li> <li>New draft is sent back automatically.</li> </ul> <p><strong>7. Continuous Learning</strong></p> <ul> <li>All approvals/rejects feed into Pinecone.</li> <li>Over time, fewer rewrites — the system starts matching their taste automatically.</li> </ul> <p><strong>8. Final Approval → Publishing</strong></p> <ul> <li>When approved, the post is flagged as “ready” in Firebase or pushed to their scheduler (Buffer, Hootsuite, LinkedIn API).</li> </ul> <h1>⚡ Stack used</h1> <ul> <li><strong>n8n</strong> — the automation backbone</li> <li><strong>Google Drive / Gmail</strong> — easy client I/O</li> <li><strong>Google Gemini + OpenAI</strong> — content generation + classification</li> <li><strong>Pinecone</strong> — RAG + memory</li> <li><strong>Firebase / Google Sheets</strong> — logging + light dashboard</li> </ul> <h1>🚀 What this unlocked for them</h1> <ul> <li>Meetings → publish-ready drafts in <em>hours</em>, not days.</li> <li>Consistent tone &amp; formatting — less editing.</li> <li>Scaling without hiring more writers.</li> <li>Client stays in control with simple email replies.</li> </ul> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Ch3rry_5t4rdusk\"> /u/Ch3rry_5t4rdusk </a> <br/> <span><a href=\"https://www.reddit.com/gallery/1ncqgi5\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncqgi5/just_shipped_my_first_automationasaservice_build/\">[comments]</a></span> </td></tr></table>",
+                  "type": "html"
+                },
+                "id": "t3_1ncqgi5",
+                "media:thumbnail": {
+                  "url": "https://b.thumbs.redditmedia.com/h94ycjUHJHdwFyM_WZLhZ7AppIHMDIewSTz4UdCWJ6w.jpg"
+                },
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncqgi5/just_shipped_my_first_automationasaservice_build/"
+                },
+                "updated": "2025-09-09T18:13:44+00:00",
+                "published": "2025-09-09T18:13:44+00:00",
+                "title": "Just shipped my first automation-as-a-service build — a Dutch agency’s LinkedIn post machine"
+              },
+              {
+                "author": {
+                  "name": "/u/Due-Way-7959",
+                  "uri": "https://www.reddit.com/user/Due-Way-7959"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>I recently helped a colleague who was overwhelmed managing event registrations for their community workshops. Tracking sign-ups, sending confirmations, and updating attendee lists across platforms was a logistical mess. So, I built Nexio, an automation that makes this complex process feel like a walk in the park.</p> <p>Nexio uses Make, which ties everything together seamlessly, and Eventbrite to handle event registrations with ease. It’s straightforward enough for anyone to set up. Here’s how Nexio works:</p> <ol> <li>Pulls new registrant data like names and emails from Eventbrite.</li> <li>Creates personalized confirmation emails using a template and sends them via Gmail.</li> <li>Adds attendees to a Google Sheets tracker for easy team access.</li> <li>Notifies the team via Slack if VIP registrations or special requests come through.</li> </ol> <p>This setup is perfect for event organizers, community managers, or anyone handling registrations for workshops or conferences. It sorts through the chaos of multiple platforms and keeps everything running smoothly.</p> <p>Happy automating!</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Due-Way-7959\"> /u/Due-Way-7959 </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncpr47/nexio_streamlines_event_registrations_with_make/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncpr47/nexio_streamlines_event_registrations_with_make/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncpr47",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncpr47/nexio_streamlines_event_registrations_with_make/"
+                },
+                "updated": "2025-09-09T17:48:05+00:00",
+                "published": "2025-09-09T17:48:05+00:00",
+                "title": "Nexio - Streamlines Event Registrations with Make and Eventbrite"
+              },
+              {
+                "author": {
+                  "name": "/u/curiositypower",
+                  "uri": "https://www.reddit.com/user/curiositypower"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>Set up some outreach automation for a client. Agreement clearly stated &quot;until first response, then manual follow-up.&quot; Everything documented, discussed multiple times.</p> <p>System launched, started getting responses. Passed the contacts that need manual follow-up to their team.</p> <p>Client messages me: &quot;Wait, I&#39;m supposed to write to these people myself?! What are bots even for?&quot;</p> <p>Guy expected full automation - basically a magic solution that handles entire conversations and delivers closed deals. Even though that was never the scope and would be way riskier anyway.</p> <p>So here&#39;s my question - how do you properly handle a client like this going forward? To keep them satisfied and deliver what I actually promised, not what they hoped for magic-wise. Or is this just unrealistic?</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/curiositypower\"> /u/curiositypower </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncofdt/how_do_you_handle_clients_who_agreed_to_one_scope/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncofdt/how_do_you_handle_clients_who_agreed_to_one_scope/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncofdt",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncofdt/how_do_you_handle_clients_who_agreed_to_one_scope/"
+                },
+                "updated": "2025-09-09T16:58:57+00:00",
+                "published": "2025-09-09T16:58:57+00:00",
+                "title": "How do you handle clients who agreed to one scope but clearly expected something completely different?"
+              },
+              {
+                "author": {
+                  "name": "/u/Dangerous-Mammoth437",
+                  "uri": "https://www.reddit.com/user/Dangerous-Mammoth437"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<table> <tr><td> <a href=\"https://www.reddit.com/r/automation/comments/1ncne0p/workflow_automation_searches_hit_5year_high_why/\"> <img src=\"https://preview.redd.it/mdldhlatz5of1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=5df29097195a9e4b2532e541ed23d486fac26a2e\" alt=\"Workflow Automation Searches Hit 5-Year High, Why Now?\" title=\"Workflow Automation Searches Hit 5-Year High, Why Now?\" /> </a> </td><td> <!-- SC_OFF --><div class=\"md\"><p>I came across an infographic from Sprout24 showing Google Trends data on workflow automation. Globally, searches hit their highest level in mid-2025 after years of steady but relatively low interest.</p> <p>Spike seems to be fueled by AItools, operational efficiency demands, and adoption across both established and emerging markets. It looks like workflow automation is moving from a back-office function to a core growth driver for many businesses.</p> <p>I would like to hear from this community:<br/> Do you think this surge reflects a long-term shift in how companies operate, or just a temporary buzz around AI and automation tools?</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Dangerous-Mammoth437\"> /u/Dangerous-Mammoth437 </a> <br/> <span><a href=\"https://i.redd.it/mdldhlatz5of1.png\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncne0p/workflow_automation_searches_hit_5year_high_why/\">[comments]</a></span> </td></tr></table>",
+                  "type": "html"
+                },
+                "id": "t3_1ncne0p",
+                "media:thumbnail": {
+                  "url": "https://preview.redd.it/mdldhlatz5of1.png?width=640&crop=smart&auto=webp&s=5df29097195a9e4b2532e541ed23d486fac26a2e"
+                },
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncne0p/workflow_automation_searches_hit_5year_high_why/"
+                },
+                "updated": "2025-09-09T16:20:03+00:00",
+                "published": "2025-09-09T16:20:03+00:00",
+                "title": "Workflow Automation Searches Hit 5-Year High, Why Now?"
+              },
+              {
+                "author": {
+                  "name": "/u/Mishita_maggo",
+                  "uri": "https://www.reddit.com/user/Mishita_maggo"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>AI agents &amp; automation workflows did so much that I got the time to dance on my beats💃🪩</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Mishita_maggo\"> /u/Mishita_maggo </a> <br/> <span><a href=\"https://www.instagram.com/reel/DOYqPUxgWB0/?igsh=azFpZnltOTI0MWR4\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncn34f/ai_made_me_dance/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncn34f",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncn34f/ai_made_me_dance/"
+                },
+                "updated": "2025-09-09T16:08:36+00:00",
+                "published": "2025-09-09T16:08:36+00:00",
+                "title": "AI made me dance....."
+              },
+              {
+                "author": {
+                  "name": "/u/bledfeet",
+                  "uri": "https://www.reddit.com/user/bledfeet"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>Hey everyone! A few days ago I was getting frustrated - Claude couldn&#39;t understand any of my instructions and I was wondering if it was me or the model. Turns out Anthropic had actually <a href=\"https://status.anthropic.com/incidents/h26lykctfnsz\">made a mistake on their end</a>! But how would I know that early?</p> <p>So I built <a href=\"https://aidailycheck.com/?llm=claude\">aidailycheck.com</a> - a simple tracker where people can vote daily on how well different AI models are performing. The idea is to crowdsource whether it&#39;s just you having issues (or a blast!) and if others are experiencing the same thing. </p> <p>The now data is coming from the website, but also from reddit and user from different extensions I&#39;ve created. If you have any more ideas how to make that more accurate, i&#39;m all hears!</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/bledfeet\"> /u/bledfeet </a> <br/> <span><a href=\"https://aidailycheck.com/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncmrih/how_is_my_ai_doing_right_now/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncmrih",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncmrih/how_is_my_ai_doing_right_now/"
+                },
+                "updated": "2025-09-09T15:56:47+00:00",
+                "published": "2025-09-09T15:56:47+00:00",
+                "title": "How is my AI doing right now?"
+              },
+              {
+                "author": {
+                  "name": "/u/AdditionalAd51",
+                  "uri": "https://www.reddit.com/user/AdditionalAd51"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>I&#39;ve read Deep Work, I get the theory. But in practice, between client emails on Gmail, urgent requests on Slack, and project updates on Asana, my brain is completely fried by noon. I&#39;ve tried &quot;&quot;focus mode&quot;&quot; on everything, but the anxiety of missing something important always pulls me back in. What are your practical, non-theoretical strategies for actually maintaining focus for more than 20 minutes at a time?</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/AdditionalAd51\"> /u/AdditionalAd51 </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncmcgz/how_do_you_actually_protect_your_focus_in_a_world/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncmcgz/how_do_you_actually_protect_your_focus_in_a_world/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncmcgz",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncmcgz/how_do_you_actually_protect_your_focus_in_a_world/"
+                },
+                "updated": "2025-09-09T15:41:10+00:00",
+                "published": "2025-09-09T15:41:10+00:00",
+                "title": "How do you actually protect your focus in a world of constant pings?"
+              },
+              {
+                "author": {
+                  "name": "/u/smartyladyphd",
+                  "uri": "https://www.reddit.com/user/smartyladyphd"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>Seriously, my workflow is a mess. I&#39;m jumping from Slack to Trello to my calendar to a note-taking app, and then I get a text message about a project. I feel like I&#39;m just managing notifications all day instead of actually doing deep work. I&#39;ve tried using a second monitor, but it just means more distractions are visible at once.</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/smartyladyphd\"> /u/smartyladyphd </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1nckg2v/does_anyone_else_feel_like_theyre_constantly/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1nckg2v/does_anyone_else_feel_like_theyre_constantly/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1nckg2v",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1nckg2v/does_anyone_else_feel_like_theyre_constantly/"
+                },
+                "updated": "2025-09-09T14:28:43+00:00",
+                "published": "2025-09-09T14:28:43+00:00",
+                "title": "Does anyone else feel like they're constantly switching between a million apps to get their work done?"
+              },
+              {
+                "author": {
+                  "name": "/u/Jarjestelmanvalvoja",
+                  "uri": "https://www.reddit.com/user/Jarjestelmanvalvoja"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>I’m doing an inventory in the warehouse. The devices have stickers with an ID number and a serial number. I’ve taken photos of these stickers (250 in total), and the identification details are clearly visible in the images. The idea is to create a script that detects the information from the stickers and writes it all into one file. </p> <p>With Copilot I’ve written Python scripts, but the text just isn’t being recognized. I’ve tried the Tesseract, EasyOCR, and PaddleOCR libraries, but the text recognition is poor or doesn’t work at all. Copilot recognizes the text well, but I can only upload one image at a time. Even though I have a paid version, I can’t upload the images to OneDrive and ask Copilot to process them all.</p> <p>What should I try next?</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Jarjestelmanvalvoja\"> /u/Jarjestelmanvalvoja </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncjbnx/ocr_from_jpg_files/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncjbnx/ocr_from_jpg_files/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncjbnx",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncjbnx/ocr_from_jpg_files/"
+                },
+                "updated": "2025-09-09T13:44:27+00:00",
+                "published": "2025-09-09T13:44:27+00:00",
+                "title": "OCR from JPG files"
+              },
+              {
+                "author": {
+                  "name": "/u/Moist_Stuff4509",
+                  "uri": "https://www.reddit.com/user/Moist_Stuff4509"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>We’ve developed a system that deploys visual AI agents capable of scanning and extracting insights from social media platforms at scale.</p> <p>Then, you can search in natural language whatever you want.</p> <p>For example:</p> <ul> <li><em>“Creators with vintage and retro aesthetic style with more than 10k followers and sort by followers desc”</em> → instantly shows the top nostalgic/retro creators.</li> <li><em>“Food influencers in LA posting plant-based recipes, ranked by engagement rate”</em></li> <li><em>“Gaming streamers with upbeat and funny moods, more than 100k followers”</em></li> </ul> <p>It surfaces highly relevant profiles with structured breakdowns like:</p> <ul> <li>Verticals: (e.g., music, fashion, food, gaming)</li> <li>Content: (e.g., nostalgia, reviews, tutorials)</li> <li>Style: (retro, minimalist, high-energy, etc.)</li> <li>Mood: (sentimental, lighthearted, edgy, etc.)</li> </ul> <p>This can be used to find exactly the type of creators or trends you’re looking for. But we are exploring other possible usages.</p> <p>Would love to hear if anyone is interested in testing it for a specific use case? We have the capacity to adapt if needed to the new use case.</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Moist_Stuff4509\"> /u/Moist_Stuff4509 </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncizty/we_built_an_ai_system_that_uses_visual_agents_to/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncizty/we_built_an_ai_system_that_uses_visual_agents_to/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncizty",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncizty/we_built_an_ai_system_that_uses_visual_agents_to/"
+                },
+                "updated": "2025-09-09T13:30:52+00:00",
+                "published": "2025-09-09T13:30:52+00:00",
+                "title": "We built an AI system that uses visual agents to analyze social media platforms at scale"
+              },
+              {
+                "author": {
+                  "name": "/u/Cryptodit",
+                  "uri": "https://www.reddit.com/user/Cryptodit"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<table> <tr><td> <a href=\"https://www.reddit.com/r/automation/comments/1nciazh/how_influencers_are_automating_content_creation/\"> <img src=\"https://external-preview.redd.it/ugt4edDCJILOvps89Qm5aLioKByGh29tFJqlp2eVpFE.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=8636bae9985fc6a360e82ce3eb49eba2a13b5648\" alt=\"How Influencers Are Automating Content Creation With AI\" title=\"How Influencers Are Automating Content Creation With AI\" /> </a> </td><td> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Cryptodit\"> /u/Cryptodit </a> <br/> <span><a href=\"https://topconsultants.co/how-influencers-are-automating-content-creation-with-ai-a-step-by-step-guide-to-instant-content-and-distribution/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1nciazh/how_influencers_are_automating_content_creation/\">[comments]</a></span> </td></tr></table>",
+                  "type": "html"
+                },
+                "id": "t3_1nciazh",
+                "media:thumbnail": {
+                  "url": "https://external-preview.redd.it/ugt4edDCJILOvps89Qm5aLioKByGh29tFJqlp2eVpFE.png?width=640&crop=smart&auto=webp&s=8636bae9985fc6a360e82ce3eb49eba2a13b5648"
+                },
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1nciazh/how_influencers_are_automating_content_creation/"
+                },
+                "updated": "2025-09-09T13:01:53+00:00",
+                "published": "2025-09-09T13:01:53+00:00",
+                "title": "How Influencers Are Automating Content Creation With AI"
+              },
+              {
+                "author": {
+                  "name": "/u/Yeetmaster_3000",
+                  "uri": "https://www.reddit.com/user/Yeetmaster_3000"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>Hey <a href=\"/r/automation\">r/automation</a>,</p> <p>I&#39;ve noticed quite a bit of outreach automation content in this sub and wanted to reach out to the community about something specific. For those of you running large-scale lead gen automations for clients, what&#39;s your current enrichment stack costing you? I keep seeing people mention Clay, Apollo, etc but the pricing is pretty brutal, especially when the data quality is inconsistent and sometimes unreliable.</p> <p>I&#39;ve been working on optimizing my own enrichment costs after Clay was killing my margins, and I think I&#39;ve figured out something that might help others in the same boat.</p> <p>Looking for a few automation builders who are:</p> <ul> <li>Running 1000+ lead enrichments per month for clients</li> <li>Currently paying for enrichment tools</li> <li>Open to testing alternatives and sharing honest feedback</li> </ul> <p>If that&#39;s you, I&#39;d love to set up a quick case study. You get heavily discounted enrichment for a month, and I get real feedback from people who actually know what they&#39;re doing, that I can share with the community. Just want to validate whether this actually solves a real problem or if I&#39;m missing something obvious.</p> <p>Drop a comment or reach out if you&#39;re interested. Would be great to connect with other builders dealing with the same challenges.</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Yeetmaster_3000\"> /u/Yeetmaster_3000 </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1nchti0/looking_for_automation_pros_running_client/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1nchti0/looking_for_automation_pros_running_client/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1nchti0",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1nchti0/looking_for_automation_pros_running_client/"
+                },
+                "updated": "2025-09-09T12:41:05+00:00",
+                "published": "2025-09-09T12:41:05+00:00",
+                "title": "Looking for automation pros running client outreach campaigns. Want to test something that might cut your enrichment costs"
+              },
+              {
+                "author": {
+                  "name": "/u/Mindless_Advantage83",
+                  "uri": "https://www.reddit.com/user/Mindless_Advantage83"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>Hi all, quick question from a beginner in automation/APIs:</p> <p>I’m trying to connect Claude Desktop to Make via MCP so Claude can (1) generate a blueprint JSON for a scenario from a prompt and then (2) create/update that scenario in Make via the API. Is the right approach to have Claude return the blueprint and then call POST /api/v2/scenarios (with the blueprint passed as a string) and PATCH / api / v2 / scenarios /{id} for updates? Or would you recommend a different pattern—e.g., exposing a generic H TTP / REST MCP tool or using Make’s MCP server plus a small On-Demand helper scenario?</p> <p>Any caveats around auth, connections, or build-time variables I should watch out for would be super helpful. Thanks!</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Mindless_Advantage83\"> /u/Mindless_Advantage83 </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1nchrck/claude_desktop_to_make_via_mcp/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1nchrck/claude_desktop_to_make_via_mcp/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1nchrck",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1nchrck/claude_desktop_to_make_via_mcp/"
+                },
+                "updated": "2025-09-09T12:38:17+00:00",
+                "published": "2025-09-09T12:38:17+00:00",
+                "title": "Claude Desktop to Make via MCP"
+              },
+              {
+                "author": {
+                  "name": "/u/Cryptoslazy",
+                  "uri": "https://www.reddit.com/user/Cryptoslazy"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>Hey guys, me and my team been working on this for months and finally dropped it. It’s called <strong>LeadsFunda Automation Suite</strong>. </p> <p>It’s basically an all-in-one desktop automation tool that actually opens a real browser (mouse moves, keystrokes, looks human). Way different from Zapier/n8n cause those are cloud-based and limited. This thing runs locally, no restrictions, and can automate stuff on <strong>Instagram, LinkedIn, Facebook, YouTube, Quora, Amazon</strong> etc.</p> <p>Quick example:</p> <ul> <li>scrape 100+ Quora questions by keyword → export to CSV</li> <li>load AI prompt templates + API key → auto answer them</li> <li>bulk post answers with natural typing simulation</li> <li>same workflow works for LinkedIn leads, FB groups, YouTube keyword scraping, Amazon product research.</li> </ul> <p>We made it a <strong>one-time license</strong> (no monthly subs nonsense), but right now you can <strong>download it free and try it for 7 days</strong>.</p> <p>If anyone here loves automation like me, I’d love to hear feedback on how you’d use it / what features you’d want added. We’re still adding plugins like crazy....</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Cryptoslazy\"> /u/Cryptoslazy </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1nchh4t/anyone_here_tried_leadsfunda_finally_a_desktop/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1nchh4t/anyone_here_tried_leadsfunda_finally_a_desktop/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1nchh4t",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1nchh4t/anyone_here_tried_leadsfunda_finally_a_desktop/"
+                },
+                "updated": "2025-09-09T12:25:30+00:00",
+                "published": "2025-09-09T12:25:30+00:00",
+                "title": "Anyone here tried LeadsFunda? finally a desktop automation suite that acts like a human browser"
+              },
+              {
+                "author": {
+                  "name": "/u/two_options_only",
+                  "uri": "https://www.reddit.com/user/two_options_only"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "&#32; submitted by &#32; <a href=\"https://www.reddit.com/user/two_options_only\"> /u/two_options_only </a> <br/> <span><a href=\"/r/automation/comments/1nch0da/ereply_agent/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1nch0s6/ereply_agent/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1nch0s6",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1nch0s6/ereply_agent/"
+                },
+                "updated": "2025-09-09T12:04:14+00:00",
+                "published": "2025-09-09T12:04:14+00:00",
+                "title": "EReply agent"
+              },
+              {
+                "author": {
+                  "name": "/u/two_options_only",
+                  "uri": "https://www.reddit.com/user/two_options_only"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>I’ve built an email reply agent using n8n and Gemini AI. It connects to your inbox, reads incoming emails, and generates professional replies automatically. You can customize the tone, rules, and triggers so it only replies when you want it to.</p> <p>It’s designed to save time for freelancers, small businesses, or anyone who deals with repetitive emails every day.</p> <p>If anyone is interested in trying it out or even buying it for their own use, feel free to reach out.</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/two_options_only\"> /u/two_options_only </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1nch0da/ereply_agent/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1nch0da/ereply_agent/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1nch0da",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1nch0da/ereply_agent/"
+                },
+                "updated": "2025-09-09T12:03:42+00:00",
+                "published": "2025-09-09T12:03:42+00:00",
+                "title": "EReply agent"
+              },
+              {
+                "author": {
+                  "name": "/u/Hateez_Abdullah",
+                  "uri": "https://www.reddit.com/user/Hateez_Abdullah"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>Hey everyone,</p> <p>I&#39;m a university student trying to choose a tech path and would love this community&#39;s honest advice. I have two very different options in front of me.</p> <p><strong>My Core Goals:</strong></p> <ol> <li>Become financially independent <strong>as soon as possible</strong> (~$1000/month) through remote/freelance work.</li> <li>The skill I learn <strong>must</strong> have strong, sustainable career growth for the next 10+ years.</li> </ol> <p>Here are my two paths:</p> <p><strong>PATH A: The Foundational Route</strong></p> <ul> <li><strong>What it is:</strong> A free, government-sponsored 3-month course in Networking &amp; Cloud Computing (heavy on Cisco, then AWS &amp; Azure).</li> <li><strong>Pros:</strong> Deep, foundational knowledge. Looks great on a CV for a stable corporate job.</li> <li><strong>Cons:</strong> Very intense (3 hours/day), slow path to earning money (can&#39;t freelance networking basics).</li> </ul> <p><strong>PATH B: The Agile / Freelance Route</strong></p> <ul> <li><strong>What it is:</strong> Learn AI Automation with low-code tools (like n8n, Zapier) in about 3 weeks.</li> <li><strong>Pros:</strong> Extremely fast path to earning. I have friends already making good money building and selling AI agents. Perfect for freelancing.</li> <li><strong>Cons:</strong> Is this a &quot;real&quot; long-term skill, or just a temporary trend? Am I sacrificing a deep foundation for quick cash?</li> </ul> <p><strong>My Question To You:</strong></p> <p>Given my urgent need for income but also my desire for a long-term, valuable career, which path makes more sense? Should I endure the slow, foundational course, or should I jump on the fast, modern AI automation wave?</p> <p>Thanks for your wisdom.</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Hateez_Abdullah\"> /u/Hateez_Abdullah </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncgnh4/attention_people_with_experience_in_ai_automation/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncgnh4/attention_people_with_experience_in_ai_automation/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncgnh4",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncgnh4/attention_people_with_experience_in_ai_automation/"
+                },
+                "updated": "2025-09-09T11:46:37+00:00",
+                "published": "2025-09-09T11:46:37+00:00",
+                "title": "Attention! People with experience in AI Automation and Could Computing. I NEED YOUR HELP"
+              },
+              {
+                "author": {
+                  "name": "/u/Mindless_Advantage83",
+                  "uri": "https://www.reddit.com/user/Mindless_Advantage83"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>HI ALL,</p> <p>I am a novice in the field of automation and am curious to understand the advantages and disadvantages of Claude Desktop-MCP for automation purposes. I am keen to know if anyone has experimented with this tool and their subsequent experience. Additionally, I am interested to know if it is feasible to have Claude generate an entirely new scenario in Make via MCP, or are there any constraints?</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Mindless_Advantage83\"> /u/Mindless_Advantage83 </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncgd6h/claudemcpmake/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncgd6h/claudemcpmake/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncgd6h",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncgd6h/claudemcpmake/"
+                },
+                "updated": "2025-09-09T11:31:47+00:00",
+                "published": "2025-09-09T11:31:47+00:00",
+                "title": "Claude/MCP/Make"
+              },
+              {
+                "author": {
+                  "name": "/u/No_Finish3722",
+                  "uri": "https://www.reddit.com/user/No_Finish3722"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>A few years ago, most people thought robots = job killers. But looking around today, it feels more like robots are becoming <strong>co-workers</strong>:</p> <ul> <li>🛒 Self-checkout kiosks that use AI vision to catch unscanned items → less shrinkage, more trust.</li> <li>🏭 Cobots on factory floors → humans focus on creativity, robots handle the risky/repetitive stuff.</li> <li>🧠 Digital twins → test workflows virtually before touching real-world systems.</li> <li>🔐 Biometrics → super convenient, but still a big debate on <strong>privacy vs. usability</strong>.</li> </ul> <p>Honestly, it’s starting to feel less like “humans vs. robots” and more like <strong>humans + robots.</strong></p> <p>So I’m curious…<br/> 👉 Do you think robots will ever be seen as actual <em>team members</em>?<br/> 👉 Which industry (retail, healthcare, manufacturing, education) do you think will see this shift first?</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/No_Finish3722\"> /u/No_Finish3722 </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncgb07/are_robots_becoming_our_teammates_instead_of/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncgb07/are_robots_becoming_our_teammates_instead_of/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncgb07",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncgb07/are_robots_becoming_our_teammates_instead_of/"
+                },
+                "updated": "2025-09-09T11:28:40+00:00",
+                "published": "2025-09-09T11:28:40+00:00",
+                "title": "Are Robots Becoming Our Teammates Instead of Replacements?"
+              },
+              {
+                "author": {
+                  "name": "/u/No_Finish3722",
+                  "uri": "https://www.reddit.com/user/No_Finish3722"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>For years, the conversation about robotics has centered on fear—automation replacing jobs. But what’s actually happening looks far more collaborative.</p> <p>Here are a few trends that stand out in the shift from <em>robots as tools</em> → <em>robots as teammates</em>:</p> <ol> <li><strong>Hardware ≠ Success</strong> The tech itself isn’t enough. Businesses need to prove ROI, overcome cost barriers, and integrate systems smoothly into existing workflows.</li> <li><strong>Perception &amp; Trust</strong> Self-checkout kiosks show the limits of traditional oversight. Advanced computer vision can detect unscanned items in real time, reducing theft and increasing operational trust.</li> <li><strong>Biometrics + Privacy</strong> Seamless authentication is possible—but unless companies address concerns about data misuse, adoption will lag. Transparency and responsible data practices are crucial.</li> <li><strong>Collaboration &gt; Replacement</strong> From cobots on assembly lines to AI copilots in offices, the most impactful systems are those that <strong>augment humans</strong> instead of trying to replace them.</li> </ol> <p><strong>Why this matters:</strong></p> <ul> <li>Safer workplaces with fewer repetitive or hazardous tasks.</li> <li>Faster innovation with digital twins and virtual testing.</li> <li>Higher trust between businesses, workers, and customers.</li> </ul> <p>👉 Curious to hear the community’s view:</p> <ul> <li>Which industry will be transformed first by collaborative robotics?</li> <li>How should we balance the need for innovation with the public’s concerns about privacy?</li> </ul> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/No_Finish3722\"> /u/No_Finish3722 </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncg5b5/robots_as_coworkers_the_next_step_in_humanmachine/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncg5b5/robots_as_coworkers_the_next_step_in_humanmachine/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncg5b5",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncg5b5/robots_as_coworkers_the_next_step_in_humanmachine/"
+                },
+                "updated": "2025-09-09T11:20:26+00:00",
+                "published": "2025-09-09T11:20:26+00:00",
+                "title": "Robots as Co-Workers: The Next Step in Human-Machine Collaboration"
+              },
+              {
+                "author": {
+                  "name": "/u/Forsaken_Passenger80",
+                  "uri": "https://www.reddit.com/user/Forsaken_Passenger80"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<table> <tr><td> <a href=\"https://www.reddit.com/r/automation/comments/1ncg3so/why_the_model_context_protocol_mcp_is_a_game/\"> <img src=\"https://preview.redd.it/06sosfi3i4of1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=12598ee9ba9a3acf6aa4189ac0f5004e433f7c70\" alt=\"Why the Model Context Protocol MCP is a Game Changer for Building AI Agents\" title=\"Why the Model Context Protocol MCP is a Game Changer for Building AI Agents\" /> </a> </td><td> <!-- SC_OFF --><div class=\"md\"><p>When building AI agents, one of the biggest bottlenecks isn’t the intelligence of the model itself it’s the plumbing.Connecting APIs, managing states, orchestrating flows, and integrating tools is where developers often spend most of their time.</p> <p>Traditionally, if you’re using workflow tools like n8n, you connect multiple nodes together. Like API calls → transformation → GPT → database → Slack → etc. It works, but as the number of steps grows workflow can quickly turn into a tangled web. </p> <p>Debugging it? Even harder.</p> <p>This is where the Model Context Protocol (MCP) enters the scene. </p> <h1>What is MCP?</h1> <p>The Model Context Protocol is an open standard designed to make AI models directly aware of external tools, data sources, and actions without needing custom-coded “wiring” for every single integration.</p> <p>Think of MCP as the plug-and-play language between AI agents and the world around them. Instead of manually dragging and connecting nodes in a workflow builder, you describe the available tools/resources once, and the AI agent can decide how to use them in context.</p> <p>How MCP Helps in Building AI Agents</p> <p>Reduces Workflow Complexity</p> <p>No more 20-node chains in n8n just to fetch → transform → send data.</p> <p>With MCP, you define the capabilities (like CRM API, database) and the agent dynamically chooses how to use them.</p> <p>True Agentic Behavior</p> <p>Agents don’t just follow a static workflow they adapt.</p> <p>Example: Instead of a fixed n8n path, an MCP-aware agent can decide: “If customer data is missing, I’ll fetch it from HubSpot; if it exists, I’ll enrich it with Clearbit; then I’ll send an email.”</p> <p>Faster Prototyping &amp; Scaling</p> <p>Building a new integration in n8n requires configuring nodes and mapping fields.</p> <p>With MCP, once a tool is described, <em>any agent</em> can use it without extra setup. This drastically shortens the time to go from idea → working agent.</p> <p>Interoperability Across Ecosystems</p> <p>Instead of being locked into n8n nodes, Zapier zaps, or custom code, MCP gives you a universal interface.</p> <p>Your agent can interact with any MCP-compatible tool databases, APIs, or SaaS platforms seamlessly.</p> <p>Maintainability</p> <p>Complex n8n workflows break when APIs change or nodes fail.</p> <p>MCP’s declarative structure makes updates easier adjust the protocol definition, and the agent adapts without redesigning the whole flow.</p> <p>The future of AI agents is not about wiring endless nodes it’s about giving your models context and autonomy.</p> <p> If you’re a developer building automations in n8n, Zapier, or custom scripts, it’s time to explore how MCP can make your agents simpler, smarter, and faster to build.</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/Forsaken_Passenger80\"> /u/Forsaken_Passenger80 </a> <br/> <span><a href=\"https://i.redd.it/06sosfi3i4of1.png\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncg3so/why_the_model_context_protocol_mcp_is_a_game/\">[comments]</a></span> </td></tr></table>",
+                  "type": "html"
+                },
+                "id": "t3_1ncg3so",
+                "media:thumbnail": {
+                  "url": "https://preview.redd.it/06sosfi3i4of1.png?width=640&crop=smart&auto=webp&s=12598ee9ba9a3acf6aa4189ac0f5004e433f7c70"
+                },
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncg3so/why_the_model_context_protocol_mcp_is_a_game/"
+                },
+                "updated": "2025-09-09T11:18:11+00:00",
+                "published": "2025-09-09T11:18:11+00:00",
+                "title": "Why the Model Context Protocol MCP is a Game Changer for Building AI Agents"
+              },
+              {
+                "author": {
+                  "name": "/u/kalladaacademy",
+                  "uri": "https://www.reddit.com/user/kalladaacademy"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<table> <tr><td> <a href=\"https://www.reddit.com/r/automation/comments/1ncfpaq/automating_image_generation_with_ai_nano_banana/\"> <img src=\"https://preview.redd.it/857if573e4of1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=58f1d6e0602a42a179bb10acf9b57a006ad5fbe7\" alt=\"Automating Image Generation With AI | Nano Banana + n8n Workflow\" title=\"Automating Image Generation With AI | Nano Banana + n8n Workflow\" /> </a> </td><td> <!-- SC_OFF --><div class=\"md\"><p>This month I faced a challenge: how to generate and share AI images without relying on multiple tools. Instead of overcomplicating, I built a workflow with <strong>Nano Banana + n8n</strong>.</p> <p>Here’s what it does:</p> <ul> <li>Scrapes prompts and generates images automatically</li> <li>Sends images straight to Telegram for quick sharing</li> <li>Stores results in Google Drive for future use</li> </ul> <p>I recorded the full tutorial so you can build the same workflow:<br/> 👉 <a href=\"https://youtu.be/0s6ZdU1fjc4?utm_source=chatgpt.com\">https://youtu.be/0s6ZdU1fjc4</a></p> <p>I’d love to hear your thoughts. Do you prefer building custom AI workflows, or do you stick to prebuilt SaaS tools?</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/kalladaacademy\"> /u/kalladaacademy </a> <br/> <span><a href=\"https://i.redd.it/857if573e4of1.png\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncfpaq/automating_image_generation_with_ai_nano_banana/\">[comments]</a></span> </td></tr></table>",
+                  "type": "html"
+                },
+                "id": "t3_1ncfpaq",
+                "media:thumbnail": {
+                  "url": "https://preview.redd.it/857if573e4of1.png?width=640&crop=smart&auto=webp&s=58f1d6e0602a42a179bb10acf9b57a006ad5fbe7"
+                },
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncfpaq/automating_image_generation_with_ai_nano_banana/"
+                },
+                "updated": "2025-09-09T10:56:37+00:00",
+                "published": "2025-09-09T10:56:37+00:00",
+                "title": "Automating Image Generation With AI | Nano Banana + n8n Workflow"
+              },
+              {
+                "author": {
+                  "name": "/u/BrightCook5861",
+                  "uri": "https://www.reddit.com/user/BrightCook5861"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>Lately I’ve been seeing tools promoting “Vibe Marketing”, where AI writes supposedly high-reply, personalized emails.</p> <p>Honestly, I think human emails still get better responses.</p> <p>Would you ever fully rely on AI to send emails? How good would it have to be before you’d trust it?</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/BrightCook5861\"> /u/BrightCook5861 </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncezrd/can_you_trust_ai_to_write_your_emails_fully/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncezrd/can_you_trust_ai_to_write_your_emails_fully/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncezrd",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncezrd/can_you_trust_ai_to_write_your_emails_fully/"
+                },
+                "updated": "2025-09-09T10:15:09+00:00",
+                "published": "2025-09-09T10:15:09+00:00",
+                "title": "Can You Trust AI to Write Your Emails fully?"
+              },
+              {
+                "author": {
+                  "name": "/u/agent_for_everything",
+                  "uri": "https://www.reddit.com/user/agent_for_everything"
+                },
+                "category": {
+                  "term": "automation",
+                  "label": "r/automation"
+                },
+                "content": {
+                  "_": "<!-- SC_OFF --><div class=\"md\"><p>open-source models are getting better, Grok 2.5 is out there, GPT models are more accessible, and smaller models are emerging. So, the question is: </p> <p>are you sticking to proprietary models from OpenAI or Google? Or have you embraced open-source models for building your agents? What’s your reasoning behind choosing one over the other, especially when it comes to scalability and performance?</p> </div><!-- SC_ON --> &#32; submitted by &#32; <a href=\"https://www.reddit.com/user/agent_for_everything\"> /u/agent_for_everything </a> <br/> <span><a href=\"https://www.reddit.com/r/automation/comments/1ncewdn/building_with_opensource_models_or_sticking_to/\">[link]</a></span> &#32; <span><a href=\"https://www.reddit.com/r/automation/comments/1ncewdn/building_with_opensource_models_or_sticking_to/\">[comments]</a></span>",
+                  "type": "html"
+                },
+                "id": "t3_1ncewdn",
+                "link": {
+                  "href": "https://www.reddit.com/r/automation/comments/1ncewdn/building_with_opensource_models_or_sticking_to/"
+                },
+                "updated": "2025-09-09T10:09:28+00:00",
+                "published": "2025-09-09T10:09:28+00:00",
+                "title": "building with open-source models or sticking to proprietary solutions"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "HTTP Request": [
+      {
+        "json": {
+          "data": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><feed xmlns=\"http://www.w3.org/2005/Atom\" xmlns:media=\"http://search.yahoo.com/mrss/\"><category term=\"automation\" label=\"r/automation\"/><updated>2025-09-09T20:18:47+00:00</updated><icon>https://www.redditstatic.com/icon.png/</icon><id>/r/automation/new/.rss</id><link rel=\"self\" href=\"https://www.reddit.com/r/automation/new/.rss\" type=\"application/atom+xml\" /><link rel=\"alternate\" href=\"https://www.reddit.com/r/automation/new/\" type=\"text/html\" /><subtitle>Are you fascinated by the wonders of automation, mesmerized by the power of ChatGPT, or intrigued by the endless possibilities of Artificial Intelligence and automation? Look no further! Our vibrant Reddit community is the perfect hub for enthusiasts like you. As a member of our community, you'll gain access to a wealth of resources, including: 🔬 Thought-provoking discussions on automation, ChatGPT, and AI. 🌟 Exclusive insights into the latest advancements and industry news</subtitle><title>newest submissions : automation</title><entry><author><name>/u/laurusbaurus</name><uri>https://www.reddit.com/user/laurusbaurus</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;table&gt; &lt;tr&gt;&lt;td&gt; &lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncsmlx/how_to_scrape_google_maps_reviews_with_n8n_and/&quot;&gt; &lt;img src=&quot;https://external-preview.redd.it/cqqQZ3YuYeEe2JiUvgPgZ95aHwWxAdlZeF1iyf1eL0E.jpeg?width=640&amp;amp;crop=smart&amp;amp;auto=webp&amp;amp;s=d9cfab4aaa5be458859393f0890237d1e4148aa6&quot; alt=&quot;How to Scrape Google Maps Reviews with n8n and Google Sheets&quot; title=&quot;How to Scrape Google Maps Reviews with n8n and Google Sheets&quot; /&gt; &lt;/a&gt; &lt;/td&gt;&lt;td&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/laurusbaurus&quot;&gt; /u/laurusbaurus &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://serpapi.com/blog/how-to-scrape-google-maps-reviews-with-n8n-and-google-sheets/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncsmlx/how_to_scrape_google_maps_reviews_with_n8n_and/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt; &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</content><id>t3_1ncsmlx</id><media:thumbnail url=\"https://external-preview.redd.it/cqqQZ3YuYeEe2JiUvgPgZ95aHwWxAdlZeF1iyf1eL0E.jpeg?width=640&amp;crop=smart&amp;auto=webp&amp;s=d9cfab4aaa5be458859393f0890237d1e4148aa6\" /><link href=\"https://www.reddit.com/r/automation/comments/1ncsmlx/how_to_scrape_google_maps_reviews_with_n8n_and/\" /><updated>2025-09-09T19:32:41+00:00</updated><published>2025-09-09T19:32:41+00:00</published><title>How to Scrape Google Maps Reviews with n8n and Google Sheets</title></entry><entry><author><name>/u/Ch3rry_5t4rdusk</name><uri>https://www.reddit.com/user/Ch3rry_5t4rdusk</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;table&gt; &lt;tr&gt;&lt;td&gt; &lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncqgi5/just_shipped_my_first_automationasaservice_build/&quot;&gt; &lt;img src=&quot;https://b.thumbs.redditmedia.com/h94ycjUHJHdwFyM_WZLhZ7AppIHMDIewSTz4UdCWJ6w.jpg&quot; alt=&quot;Just shipped my first automation-as-a-service build — a Dutch agency’s LinkedIn post machine&quot; title=&quot;Just shipped my first automation-as-a-service build — a Dutch agency’s LinkedIn post machine&quot; /&gt; &lt;/a&gt; &lt;/td&gt;&lt;td&gt; &lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;Big milestone for me: I just shipped my first client automation project, and it wasn’t some Zapier quick-fix. This was a proper, multi-branch, AI-powered pipeline that turned a painful manual process into something fast, scalable, and client-friendly.&lt;/p&gt; &lt;p&gt;Here’s the context:&lt;br/&gt; A Dutch writing agency came to me with a headache:&lt;/p&gt; &lt;ul&gt; &lt;li&gt;After every client meeting, they spent hours manually drafting LinkedIn posts.&lt;/li&gt; &lt;li&gt;Tone was inconsistent.&lt;/li&gt; &lt;li&gt;Turnaround was slow.&lt;/li&gt; &lt;li&gt;Scaling this workflow meant hiring more writers — not sustainable.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;I turned that into a smooth, feedback-driven automation system. Here’s the &lt;strong&gt;step-by-step build&lt;/strong&gt;:&lt;/p&gt; &lt;h1&gt;🛠️ The Pipeline (Simplified Overview)&lt;/h1&gt; &lt;p&gt;&lt;strong&gt;1. Input: Meeting → Transcript&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;Meeting audio/transcripts are dropped into Google Drive.&lt;/li&gt; &lt;li&gt;n8n watches the folder and grabs the file.&lt;/li&gt; &lt;li&gt;This is now the single source of truth.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;&lt;strong&gt;2. Auto Subject Generation&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;AI parses the transcript, proposes 4–8 subject ideas in the client’s voice.&lt;/li&gt; &lt;li&gt;Stored in Google Sheets.&lt;/li&gt; &lt;li&gt;Basically: no blank pages, just fast direction.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;&lt;strong&gt;3. Client-Controlled Branching (via Email)&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;Those subjects are emailed to the client with simple instructions:Reply “Generate Hooks” or “Create Post.”&lt;/li&gt; &lt;li&gt;No dashboard learning curve — just email.&lt;/li&gt; &lt;li&gt;Replies trigger the next workflow.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;&lt;strong&gt;4. Hooks Generation (Workflow 2)&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;If they ask for hooks, AI + Pinecone (RAG for style/history) generate 6–12 hook ideas.&lt;/li&gt; &lt;li&gt;Client picks the one they like best.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;&lt;strong&gt;5. Full Post Generation (Workflow 3)&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;Once a hook is selected, AI creates a full LinkedIn post (hook → intro → 2–4 paragraph body → CTA).&lt;/li&gt; &lt;li&gt;Uses a formatting guide stored in Pinecone.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;&lt;strong&gt;6. Feedback-Driven Rewrite (Workflow 4)&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;If the client replies with tone/length/style feedback, the system rewrites the post using: original post + feedback + historical preferences (via RAG).&lt;/li&gt; &lt;li&gt;New draft is sent back automatically.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;&lt;strong&gt;7. Continuous Learning&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;All approvals/rejects feed into Pinecone.&lt;/li&gt; &lt;li&gt;Over time, fewer rewrites — the system starts matching their taste automatically.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;&lt;strong&gt;8. Final Approval → Publishing&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;When approved, the post is flagged as “ready” in Firebase or pushed to their scheduler (Buffer, Hootsuite, LinkedIn API).&lt;/li&gt; &lt;/ul&gt; &lt;h1&gt;⚡ Stack used&lt;/h1&gt; &lt;ul&gt; &lt;li&gt;&lt;strong&gt;n8n&lt;/strong&gt; — the automation backbone&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Google Drive / Gmail&lt;/strong&gt; — easy client I/O&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Google Gemini + OpenAI&lt;/strong&gt; — content generation + classification&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Pinecone&lt;/strong&gt; — RAG + memory&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Firebase / Google Sheets&lt;/strong&gt; — logging + light dashboard&lt;/li&gt; &lt;/ul&gt; &lt;h1&gt;🚀 What this unlocked for them&lt;/h1&gt; &lt;ul&gt; &lt;li&gt;Meetings → publish-ready drafts in &lt;em&gt;hours&lt;/em&gt;, not days.&lt;/li&gt; &lt;li&gt;Consistent tone &amp;amp; formatting — less editing.&lt;/li&gt; &lt;li&gt;Scaling without hiring more writers.&lt;/li&gt; &lt;li&gt;Client stays in control with simple email replies.&lt;/li&gt; &lt;/ul&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Ch3rry_5t4rdusk&quot;&gt; /u/Ch3rry_5t4rdusk &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/gallery/1ncqgi5&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncqgi5/just_shipped_my_first_automationasaservice_build/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt; &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</content><id>t3_1ncqgi5</id><media:thumbnail url=\"https://b.thumbs.redditmedia.com/h94ycjUHJHdwFyM_WZLhZ7AppIHMDIewSTz4UdCWJ6w.jpg\" /><link href=\"https://www.reddit.com/r/automation/comments/1ncqgi5/just_shipped_my_first_automationasaservice_build/\" /><updated>2025-09-09T18:13:44+00:00</updated><published>2025-09-09T18:13:44+00:00</published><title>Just shipped my first automation-as-a-service build — a Dutch agency’s LinkedIn post machine</title></entry><entry><author><name>/u/Due-Way-7959</name><uri>https://www.reddit.com/user/Due-Way-7959</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;I recently helped a colleague who was overwhelmed managing event registrations for their community workshops. Tracking sign-ups, sending confirmations, and updating attendee lists across platforms was a logistical mess. So, I built Nexio, an automation that makes this complex process feel like a walk in the park.&lt;/p&gt; &lt;p&gt;Nexio uses Make, which ties everything together seamlessly, and Eventbrite to handle event registrations with ease. It’s straightforward enough for anyone to set up. Here’s how Nexio works:&lt;/p&gt; &lt;ol&gt; &lt;li&gt;Pulls new registrant data like names and emails from Eventbrite.&lt;/li&gt; &lt;li&gt;Creates personalized confirmation emails using a template and sends them via Gmail.&lt;/li&gt; &lt;li&gt;Adds attendees to a Google Sheets tracker for easy team access.&lt;/li&gt; &lt;li&gt;Notifies the team via Slack if VIP registrations or special requests come through.&lt;/li&gt; &lt;/ol&gt; &lt;p&gt;This setup is perfect for event organizers, community managers, or anyone handling registrations for workshops or conferences. It sorts through the chaos of multiple platforms and keeps everything running smoothly.&lt;/p&gt; &lt;p&gt;Happy automating!&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Due-Way-7959&quot;&gt; /u/Due-Way-7959 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncpr47/nexio_streamlines_event_registrations_with_make/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncpr47/nexio_streamlines_event_registrations_with_make/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncpr47</id><link href=\"https://www.reddit.com/r/automation/comments/1ncpr47/nexio_streamlines_event_registrations_with_make/\" /><updated>2025-09-09T17:48:05+00:00</updated><published>2025-09-09T17:48:05+00:00</published><title>Nexio - Streamlines Event Registrations with Make and Eventbrite</title></entry><entry><author><name>/u/curiositypower</name><uri>https://www.reddit.com/user/curiositypower</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;Set up some outreach automation for a client. Agreement clearly stated &amp;quot;until first response, then manual follow-up.&amp;quot; Everything documented, discussed multiple times.&lt;/p&gt; &lt;p&gt;System launched, started getting responses. Passed the contacts that need manual follow-up to their team.&lt;/p&gt; &lt;p&gt;Client messages me: &amp;quot;Wait, I&amp;#39;m supposed to write to these people myself?! What are bots even for?&amp;quot;&lt;/p&gt; &lt;p&gt;Guy expected full automation - basically a magic solution that handles entire conversations and delivers closed deals. Even though that was never the scope and would be way riskier anyway.&lt;/p&gt; &lt;p&gt;So here&amp;#39;s my question - how do you properly handle a client like this going forward? To keep them satisfied and deliver what I actually promised, not what they hoped for magic-wise. Or is this just unrealistic?&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/curiositypower&quot;&gt; /u/curiositypower &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncofdt/how_do_you_handle_clients_who_agreed_to_one_scope/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncofdt/how_do_you_handle_clients_who_agreed_to_one_scope/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncofdt</id><link href=\"https://www.reddit.com/r/automation/comments/1ncofdt/how_do_you_handle_clients_who_agreed_to_one_scope/\" /><updated>2025-09-09T16:58:57+00:00</updated><published>2025-09-09T16:58:57+00:00</published><title>How do you handle clients who agreed to one scope but clearly expected something completely different?</title></entry><entry><author><name>/u/Dangerous-Mammoth437</name><uri>https://www.reddit.com/user/Dangerous-Mammoth437</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;table&gt; &lt;tr&gt;&lt;td&gt; &lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncne0p/workflow_automation_searches_hit_5year_high_why/&quot;&gt; &lt;img src=&quot;https://preview.redd.it/mdldhlatz5of1.png?width=640&amp;amp;crop=smart&amp;amp;auto=webp&amp;amp;s=5df29097195a9e4b2532e541ed23d486fac26a2e&quot; alt=&quot;Workflow Automation Searches Hit 5-Year High, Why Now?&quot; title=&quot;Workflow Automation Searches Hit 5-Year High, Why Now?&quot; /&gt; &lt;/a&gt; &lt;/td&gt;&lt;td&gt; &lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;I came across an infographic from Sprout24 showing Google Trends data on workflow automation. Globally, searches hit their highest level in mid-2025 after years of steady but relatively low interest.&lt;/p&gt; &lt;p&gt;Spike seems to be fueled by AItools, operational efficiency demands, and adoption across both established and emerging markets. It looks like workflow automation is moving from a back-office function to a core growth driver for many businesses.&lt;/p&gt; &lt;p&gt;I would like to hear from this community:&lt;br/&gt; Do you think this surge reflects a long-term shift in how companies operate, or just a temporary buzz around AI and automation tools?&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Dangerous-Mammoth437&quot;&gt; /u/Dangerous-Mammoth437 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://i.redd.it/mdldhlatz5of1.png&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncne0p/workflow_automation_searches_hit_5year_high_why/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt; &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</content><id>t3_1ncne0p</id><media:thumbnail url=\"https://preview.redd.it/mdldhlatz5of1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=5df29097195a9e4b2532e541ed23d486fac26a2e\" /><link href=\"https://www.reddit.com/r/automation/comments/1ncne0p/workflow_automation_searches_hit_5year_high_why/\" /><updated>2025-09-09T16:20:03+00:00</updated><published>2025-09-09T16:20:03+00:00</published><title>Workflow Automation Searches Hit 5-Year High, Why Now?</title></entry><entry><author><name>/u/Mishita_maggo</name><uri>https://www.reddit.com/user/Mishita_maggo</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;AI agents &amp;amp; automation workflows did so much that I got the time to dance on my beats💃🪩&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Mishita_maggo&quot;&gt; /u/Mishita_maggo &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.instagram.com/reel/DOYqPUxgWB0/?igsh=azFpZnltOTI0MWR4&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncn34f/ai_made_me_dance/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncn34f</id><link href=\"https://www.reddit.com/r/automation/comments/1ncn34f/ai_made_me_dance/\" /><updated>2025-09-09T16:08:36+00:00</updated><published>2025-09-09T16:08:36+00:00</published><title>AI made me dance.....</title></entry><entry><author><name>/u/bledfeet</name><uri>https://www.reddit.com/user/bledfeet</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;Hey everyone! A few days ago I was getting frustrated - Claude couldn&amp;#39;t understand any of my instructions and I was wondering if it was me or the model. Turns out Anthropic had actually &lt;a href=&quot;https://status.anthropic.com/incidents/h26lykctfnsz&quot;&gt;made a mistake on their end&lt;/a&gt;! But how would I know that early?&lt;/p&gt; &lt;p&gt;So I built &lt;a href=&quot;https://aidailycheck.com/?llm=claude&quot;&gt;aidailycheck.com&lt;/a&gt; - a simple tracker where people can vote daily on how well different AI models are performing. The idea is to crowdsource whether it&amp;#39;s just you having issues (or a blast!) and if others are experiencing the same thing. &lt;/p&gt; &lt;p&gt;The now data is coming from the website, but also from reddit and user from different extensions I&amp;#39;ve created. If you have any more ideas how to make that more accurate, i&amp;#39;m all hears!&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/bledfeet&quot;&gt; /u/bledfeet &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://aidailycheck.com/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncmrih/how_is_my_ai_doing_right_now/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncmrih</id><link href=\"https://www.reddit.com/r/automation/comments/1ncmrih/how_is_my_ai_doing_right_now/\" /><updated>2025-09-09T15:56:47+00:00</updated><published>2025-09-09T15:56:47+00:00</published><title>How is my AI doing right now?</title></entry><entry><author><name>/u/AdditionalAd51</name><uri>https://www.reddit.com/user/AdditionalAd51</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;I&amp;#39;ve read Deep Work, I get the theory. But in practice, between client emails on Gmail, urgent requests on Slack, and project updates on Asana, my brain is completely fried by noon. I&amp;#39;ve tried &amp;quot;&amp;quot;focus mode&amp;quot;&amp;quot; on everything, but the anxiety of missing something important always pulls me back in. What are your practical, non-theoretical strategies for actually maintaining focus for more than 20 minutes at a time?&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/AdditionalAd51&quot;&gt; /u/AdditionalAd51 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncmcgz/how_do_you_actually_protect_your_focus_in_a_world/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncmcgz/how_do_you_actually_protect_your_focus_in_a_world/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncmcgz</id><link href=\"https://www.reddit.com/r/automation/comments/1ncmcgz/how_do_you_actually_protect_your_focus_in_a_world/\" /><updated>2025-09-09T15:41:10+00:00</updated><published>2025-09-09T15:41:10+00:00</published><title>How do you actually protect your focus in a world of constant pings?</title></entry><entry><author><name>/u/smartyladyphd</name><uri>https://www.reddit.com/user/smartyladyphd</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;Seriously, my workflow is a mess. I&amp;#39;m jumping from Slack to Trello to my calendar to a note-taking app, and then I get a text message about a project. I feel like I&amp;#39;m just managing notifications all day instead of actually doing deep work. I&amp;#39;ve tried using a second monitor, but it just means more distractions are visible at once.&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/smartyladyphd&quot;&gt; /u/smartyladyphd &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nckg2v/does_anyone_else_feel_like_theyre_constantly/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nckg2v/does_anyone_else_feel_like_theyre_constantly/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1nckg2v</id><link href=\"https://www.reddit.com/r/automation/comments/1nckg2v/does_anyone_else_feel_like_theyre_constantly/\" /><updated>2025-09-09T14:28:43+00:00</updated><published>2025-09-09T14:28:43+00:00</published><title>Does anyone else feel like they're constantly switching between a million apps to get their work done?</title></entry><entry><author><name>/u/Jarjestelmanvalvoja</name><uri>https://www.reddit.com/user/Jarjestelmanvalvoja</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;I’m doing an inventory in the warehouse. The devices have stickers with an ID number and a serial number. I’ve taken photos of these stickers (250 in total), and the identification details are clearly visible in the images. The idea is to create a script that detects the information from the stickers and writes it all into one file. &lt;/p&gt; &lt;p&gt;With Copilot I’ve written Python scripts, but the text just isn’t being recognized. I’ve tried the Tesseract, EasyOCR, and PaddleOCR libraries, but the text recognition is poor or doesn’t work at all. Copilot recognizes the text well, but I can only upload one image at a time. Even though I have a paid version, I can’t upload the images to OneDrive and ask Copilot to process them all.&lt;/p&gt; &lt;p&gt;What should I try next?&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Jarjestelmanvalvoja&quot;&gt; /u/Jarjestelmanvalvoja &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncjbnx/ocr_from_jpg_files/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncjbnx/ocr_from_jpg_files/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncjbnx</id><link href=\"https://www.reddit.com/r/automation/comments/1ncjbnx/ocr_from_jpg_files/\" /><updated>2025-09-09T13:44:27+00:00</updated><published>2025-09-09T13:44:27+00:00</published><title>OCR from JPG files</title></entry><entry><author><name>/u/Moist_Stuff4509</name><uri>https://www.reddit.com/user/Moist_Stuff4509</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;We’ve developed a system that deploys visual AI agents capable of scanning and extracting insights from social media platforms at scale.&lt;/p&gt; &lt;p&gt;Then, you can search in natural language whatever you want.&lt;/p&gt; &lt;p&gt;For example:&lt;/p&gt; &lt;ul&gt; &lt;li&gt;&lt;em&gt;“Creators with vintage and retro aesthetic style with more than 10k followers and sort by followers desc”&lt;/em&gt; → instantly shows the top nostalgic/retro creators.&lt;/li&gt; &lt;li&gt;&lt;em&gt;“Food influencers in LA posting plant-based recipes, ranked by engagement rate”&lt;/em&gt;&lt;/li&gt; &lt;li&gt;&lt;em&gt;“Gaming streamers with upbeat and funny moods, more than 100k followers”&lt;/em&gt;&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;It surfaces highly relevant profiles with structured breakdowns like:&lt;/p&gt; &lt;ul&gt; &lt;li&gt;Verticals: (e.g., music, fashion, food, gaming)&lt;/li&gt; &lt;li&gt;Content: (e.g., nostalgia, reviews, tutorials)&lt;/li&gt; &lt;li&gt;Style: (retro, minimalist, high-energy, etc.)&lt;/li&gt; &lt;li&gt;Mood: (sentimental, lighthearted, edgy, etc.)&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;This can be used to find exactly the type of creators or trends you’re looking for. But we are exploring other possible usages.&lt;/p&gt; &lt;p&gt;Would love to hear if anyone is interested in testing it for a specific use case? We have the capacity to adapt if needed to the new use case.&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Moist_Stuff4509&quot;&gt; /u/Moist_Stuff4509 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncizty/we_built_an_ai_system_that_uses_visual_agents_to/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncizty/we_built_an_ai_system_that_uses_visual_agents_to/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncizty</id><link href=\"https://www.reddit.com/r/automation/comments/1ncizty/we_built_an_ai_system_that_uses_visual_agents_to/\" /><updated>2025-09-09T13:30:52+00:00</updated><published>2025-09-09T13:30:52+00:00</published><title>We built an AI system that uses visual agents to analyze social media platforms at scale</title></entry><entry><author><name>/u/Cryptodit</name><uri>https://www.reddit.com/user/Cryptodit</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;table&gt; &lt;tr&gt;&lt;td&gt; &lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nciazh/how_influencers_are_automating_content_creation/&quot;&gt; &lt;img src=&quot;https://external-preview.redd.it/ugt4edDCJILOvps89Qm5aLioKByGh29tFJqlp2eVpFE.png?width=640&amp;amp;crop=smart&amp;amp;auto=webp&amp;amp;s=8636bae9985fc6a360e82ce3eb49eba2a13b5648&quot; alt=&quot;How Influencers Are Automating Content Creation With AI&quot; title=&quot;How Influencers Are Automating Content Creation With AI&quot; /&gt; &lt;/a&gt; &lt;/td&gt;&lt;td&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Cryptodit&quot;&gt; /u/Cryptodit &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://topconsultants.co/how-influencers-are-automating-content-creation-with-ai-a-step-by-step-guide-to-instant-content-and-distribution/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nciazh/how_influencers_are_automating_content_creation/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt; &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</content><id>t3_1nciazh</id><media:thumbnail url=\"https://external-preview.redd.it/ugt4edDCJILOvps89Qm5aLioKByGh29tFJqlp2eVpFE.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=8636bae9985fc6a360e82ce3eb49eba2a13b5648\" /><link href=\"https://www.reddit.com/r/automation/comments/1nciazh/how_influencers_are_automating_content_creation/\" /><updated>2025-09-09T13:01:53+00:00</updated><published>2025-09-09T13:01:53+00:00</published><title>How Influencers Are Automating Content Creation With AI</title></entry><entry><author><name>/u/Yeetmaster_3000</name><uri>https://www.reddit.com/user/Yeetmaster_3000</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;Hey &lt;a href=&quot;/r/automation&quot;&gt;r/automation&lt;/a&gt;,&lt;/p&gt; &lt;p&gt;I&amp;#39;ve noticed quite a bit of outreach automation content in this sub and wanted to reach out to the community about something specific. For those of you running large-scale lead gen automations for clients, what&amp;#39;s your current enrichment stack costing you? I keep seeing people mention Clay, Apollo, etc but the pricing is pretty brutal, especially when the data quality is inconsistent and sometimes unreliable.&lt;/p&gt; &lt;p&gt;I&amp;#39;ve been working on optimizing my own enrichment costs after Clay was killing my margins, and I think I&amp;#39;ve figured out something that might help others in the same boat.&lt;/p&gt; &lt;p&gt;Looking for a few automation builders who are:&lt;/p&gt; &lt;ul&gt; &lt;li&gt;Running 1000+ lead enrichments per month for clients&lt;/li&gt; &lt;li&gt;Currently paying for enrichment tools&lt;/li&gt; &lt;li&gt;Open to testing alternatives and sharing honest feedback&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;If that&amp;#39;s you, I&amp;#39;d love to set up a quick case study. You get heavily discounted enrichment for a month, and I get real feedback from people who actually know what they&amp;#39;re doing, that I can share with the community. Just want to validate whether this actually solves a real problem or if I&amp;#39;m missing something obvious.&lt;/p&gt; &lt;p&gt;Drop a comment or reach out if you&amp;#39;re interested. Would be great to connect with other builders dealing with the same challenges.&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Yeetmaster_3000&quot;&gt; /u/Yeetmaster_3000 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nchti0/looking_for_automation_pros_running_client/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nchti0/looking_for_automation_pros_running_client/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1nchti0</id><link href=\"https://www.reddit.com/r/automation/comments/1nchti0/looking_for_automation_pros_running_client/\" /><updated>2025-09-09T12:41:05+00:00</updated><published>2025-09-09T12:41:05+00:00</published><title>Looking for automation pros running client outreach campaigns. Want to test something that might cut your enrichment costs</title></entry><entry><author><name>/u/Mindless_Advantage83</name><uri>https://www.reddit.com/user/Mindless_Advantage83</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;Hi all, quick question from a beginner in automation/APIs:&lt;/p&gt; &lt;p&gt;I’m trying to connect Claude Desktop to Make via MCP so Claude can (1) generate a blueprint JSON for a scenario from a prompt and then (2) create/update that scenario in Make via the API. Is the right approach to have Claude return the blueprint and then call POST /api/v2/scenarios (with the blueprint passed as a string) and PATCH / api / v2 / scenarios /{id} for updates? Or would you recommend a different pattern—e.g., exposing a generic H TTP / REST MCP tool or using Make’s MCP server plus a small On-Demand helper scenario?&lt;/p&gt; &lt;p&gt;Any caveats around auth, connections, or build-time variables I should watch out for would be super helpful. Thanks!&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Mindless_Advantage83&quot;&gt; /u/Mindless_Advantage83 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nchrck/claude_desktop_to_make_via_mcp/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nchrck/claude_desktop_to_make_via_mcp/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1nchrck</id><link href=\"https://www.reddit.com/r/automation/comments/1nchrck/claude_desktop_to_make_via_mcp/\" /><updated>2025-09-09T12:38:17+00:00</updated><published>2025-09-09T12:38:17+00:00</published><title>Claude Desktop to Make via MCP</title></entry><entry><author><name>/u/Cryptoslazy</name><uri>https://www.reddit.com/user/Cryptoslazy</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;Hey guys, me and my team been working on this for months and finally dropped it. It’s called &lt;strong&gt;LeadsFunda Automation Suite&lt;/strong&gt;. &lt;/p&gt; &lt;p&gt;It’s basically an all-in-one desktop automation tool that actually opens a real browser (mouse moves, keystrokes, looks human). Way different from Zapier/n8n cause those are cloud-based and limited. This thing runs locally, no restrictions, and can automate stuff on &lt;strong&gt;Instagram, LinkedIn, Facebook, YouTube, Quora, Amazon&lt;/strong&gt; etc.&lt;/p&gt; &lt;p&gt;Quick example:&lt;/p&gt; &lt;ul&gt; &lt;li&gt;scrape 100+ Quora questions by keyword → export to CSV&lt;/li&gt; &lt;li&gt;load AI prompt templates + API key → auto answer them&lt;/li&gt; &lt;li&gt;bulk post answers with natural typing simulation&lt;/li&gt; &lt;li&gt;same workflow works for LinkedIn leads, FB groups, YouTube keyword scraping, Amazon product research.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;We made it a &lt;strong&gt;one-time license&lt;/strong&gt; (no monthly subs nonsense), but right now you can &lt;strong&gt;download it free and try it for 7 days&lt;/strong&gt;.&lt;/p&gt; &lt;p&gt;If anyone here loves automation like me, I’d love to hear feedback on how you’d use it / what features you’d want added. We’re still adding plugins like crazy....&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Cryptoslazy&quot;&gt; /u/Cryptoslazy &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nchh4t/anyone_here_tried_leadsfunda_finally_a_desktop/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nchh4t/anyone_here_tried_leadsfunda_finally_a_desktop/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1nchh4t</id><link href=\"https://www.reddit.com/r/automation/comments/1nchh4t/anyone_here_tried_leadsfunda_finally_a_desktop/\" /><updated>2025-09-09T12:25:30+00:00</updated><published>2025-09-09T12:25:30+00:00</published><title>Anyone here tried LeadsFunda? finally a desktop automation suite that acts like a human browser</title></entry><entry><author><name>/u/two_options_only</name><uri>https://www.reddit.com/user/two_options_only</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/two_options_only&quot;&gt; /u/two_options_only &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;/r/automation/comments/1nch0da/ereply_agent/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nch0s6/ereply_agent/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1nch0s6</id><link href=\"https://www.reddit.com/r/automation/comments/1nch0s6/ereply_agent/\" /><updated>2025-09-09T12:04:14+00:00</updated><published>2025-09-09T12:04:14+00:00</published><title>EReply agent</title></entry><entry><author><name>/u/two_options_only</name><uri>https://www.reddit.com/user/two_options_only</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;I’ve built an email reply agent using n8n and Gemini AI. It connects to your inbox, reads incoming emails, and generates professional replies automatically. You can customize the tone, rules, and triggers so it only replies when you want it to.&lt;/p&gt; &lt;p&gt;It’s designed to save time for freelancers, small businesses, or anyone who deals with repetitive emails every day.&lt;/p&gt; &lt;p&gt;If anyone is interested in trying it out or even buying it for their own use, feel free to reach out.&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/two_options_only&quot;&gt; /u/two_options_only &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nch0da/ereply_agent/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1nch0da/ereply_agent/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1nch0da</id><link href=\"https://www.reddit.com/r/automation/comments/1nch0da/ereply_agent/\" /><updated>2025-09-09T12:03:42+00:00</updated><published>2025-09-09T12:03:42+00:00</published><title>EReply agent</title></entry><entry><author><name>/u/Hateez_Abdullah</name><uri>https://www.reddit.com/user/Hateez_Abdullah</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;Hey everyone,&lt;/p&gt; &lt;p&gt;I&amp;#39;m a university student trying to choose a tech path and would love this community&amp;#39;s honest advice. I have two very different options in front of me.&lt;/p&gt; &lt;p&gt;&lt;strong&gt;My Core Goals:&lt;/strong&gt;&lt;/p&gt; &lt;ol&gt; &lt;li&gt;Become financially independent &lt;strong&gt;as soon as possible&lt;/strong&gt; (~$1000/month) through remote/freelance work.&lt;/li&gt; &lt;li&gt;The skill I learn &lt;strong&gt;must&lt;/strong&gt; have strong, sustainable career growth for the next 10+ years.&lt;/li&gt; &lt;/ol&gt; &lt;p&gt;Here are my two paths:&lt;/p&gt; &lt;p&gt;&lt;strong&gt;PATH A: The Foundational Route&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;&lt;strong&gt;What it is:&lt;/strong&gt; A free, government-sponsored 3-month course in Networking &amp;amp; Cloud Computing (heavy on Cisco, then AWS &amp;amp; Azure).&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Pros:&lt;/strong&gt; Deep, foundational knowledge. Looks great on a CV for a stable corporate job.&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Cons:&lt;/strong&gt; Very intense (3 hours/day), slow path to earning money (can&amp;#39;t freelance networking basics).&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;&lt;strong&gt;PATH B: The Agile / Freelance Route&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;&lt;strong&gt;What it is:&lt;/strong&gt; Learn AI Automation with low-code tools (like n8n, Zapier) in about 3 weeks.&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Pros:&lt;/strong&gt; Extremely fast path to earning. I have friends already making good money building and selling AI agents. Perfect for freelancing.&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Cons:&lt;/strong&gt; Is this a &amp;quot;real&amp;quot; long-term skill, or just a temporary trend? Am I sacrificing a deep foundation for quick cash?&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;&lt;strong&gt;My Question To You:&lt;/strong&gt;&lt;/p&gt; &lt;p&gt;Given my urgent need for income but also my desire for a long-term, valuable career, which path makes more sense? Should I endure the slow, foundational course, or should I jump on the fast, modern AI automation wave?&lt;/p&gt; &lt;p&gt;Thanks for your wisdom.&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Hateez_Abdullah&quot;&gt; /u/Hateez_Abdullah &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncgnh4/attention_people_with_experience_in_ai_automation/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncgnh4/attention_people_with_experience_in_ai_automation/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncgnh4</id><link href=\"https://www.reddit.com/r/automation/comments/1ncgnh4/attention_people_with_experience_in_ai_automation/\" /><updated>2025-09-09T11:46:37+00:00</updated><published>2025-09-09T11:46:37+00:00</published><title>Attention! People with experience in AI Automation and Could Computing. I NEED YOUR HELP</title></entry><entry><author><name>/u/Mindless_Advantage83</name><uri>https://www.reddit.com/user/Mindless_Advantage83</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;HI ALL,&lt;/p&gt; &lt;p&gt;I am a novice in the field of automation and am curious to understand the advantages and disadvantages of Claude Desktop-MCP for automation purposes. I am keen to know if anyone has experimented with this tool and their subsequent experience. Additionally, I am interested to know if it is feasible to have Claude generate an entirely new scenario in Make via MCP, or are there any constraints?&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Mindless_Advantage83&quot;&gt; /u/Mindless_Advantage83 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncgd6h/claudemcpmake/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncgd6h/claudemcpmake/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncgd6h</id><link href=\"https://www.reddit.com/r/automation/comments/1ncgd6h/claudemcpmake/\" /><updated>2025-09-09T11:31:47+00:00</updated><published>2025-09-09T11:31:47+00:00</published><title>Claude/MCP/Make</title></entry><entry><author><name>/u/No_Finish3722</name><uri>https://www.reddit.com/user/No_Finish3722</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;A few years ago, most people thought robots = job killers. But looking around today, it feels more like robots are becoming &lt;strong&gt;co-workers&lt;/strong&gt;:&lt;/p&gt; &lt;ul&gt; &lt;li&gt;🛒 Self-checkout kiosks that use AI vision to catch unscanned items → less shrinkage, more trust.&lt;/li&gt; &lt;li&gt;🏭 Cobots on factory floors → humans focus on creativity, robots handle the risky/repetitive stuff.&lt;/li&gt; &lt;li&gt;🧠 Digital twins → test workflows virtually before touching real-world systems.&lt;/li&gt; &lt;li&gt;🔐 Biometrics → super convenient, but still a big debate on &lt;strong&gt;privacy vs. usability&lt;/strong&gt;.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;Honestly, it’s starting to feel less like “humans vs. robots” and more like &lt;strong&gt;humans + robots.&lt;/strong&gt;&lt;/p&gt; &lt;p&gt;So I’m curious…&lt;br/&gt; 👉 Do you think robots will ever be seen as actual &lt;em&gt;team members&lt;/em&gt;?&lt;br/&gt; 👉 Which industry (retail, healthcare, manufacturing, education) do you think will see this shift first?&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/No_Finish3722&quot;&gt; /u/No_Finish3722 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncgb07/are_robots_becoming_our_teammates_instead_of/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncgb07/are_robots_becoming_our_teammates_instead_of/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncgb07</id><link href=\"https://www.reddit.com/r/automation/comments/1ncgb07/are_robots_becoming_our_teammates_instead_of/\" /><updated>2025-09-09T11:28:40+00:00</updated><published>2025-09-09T11:28:40+00:00</published><title>Are Robots Becoming Our Teammates Instead of Replacements?</title></entry><entry><author><name>/u/No_Finish3722</name><uri>https://www.reddit.com/user/No_Finish3722</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;For years, the conversation about robotics has centered on fear—automation replacing jobs. But what’s actually happening looks far more collaborative.&lt;/p&gt; &lt;p&gt;Here are a few trends that stand out in the shift from &lt;em&gt;robots as tools&lt;/em&gt; → &lt;em&gt;robots as teammates&lt;/em&gt;:&lt;/p&gt; &lt;ol&gt; &lt;li&gt;&lt;strong&gt;Hardware ≠ Success&lt;/strong&gt; The tech itself isn’t enough. Businesses need to prove ROI, overcome cost barriers, and integrate systems smoothly into existing workflows.&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Perception &amp;amp; Trust&lt;/strong&gt; Self-checkout kiosks show the limits of traditional oversight. Advanced computer vision can detect unscanned items in real time, reducing theft and increasing operational trust.&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Biometrics + Privacy&lt;/strong&gt; Seamless authentication is possible—but unless companies address concerns about data misuse, adoption will lag. Transparency and responsible data practices are crucial.&lt;/li&gt; &lt;li&gt;&lt;strong&gt;Collaboration &amp;gt; Replacement&lt;/strong&gt; From cobots on assembly lines to AI copilots in offices, the most impactful systems are those that &lt;strong&gt;augment humans&lt;/strong&gt; instead of trying to replace them.&lt;/li&gt; &lt;/ol&gt; &lt;p&gt;&lt;strong&gt;Why this matters:&lt;/strong&gt;&lt;/p&gt; &lt;ul&gt; &lt;li&gt;Safer workplaces with fewer repetitive or hazardous tasks.&lt;/li&gt; &lt;li&gt;Faster innovation with digital twins and virtual testing.&lt;/li&gt; &lt;li&gt;Higher trust between businesses, workers, and customers.&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;👉 Curious to hear the community’s view:&lt;/p&gt; &lt;ul&gt; &lt;li&gt;Which industry will be transformed first by collaborative robotics?&lt;/li&gt; &lt;li&gt;How should we balance the need for innovation with the public’s concerns about privacy?&lt;/li&gt; &lt;/ul&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/No_Finish3722&quot;&gt; /u/No_Finish3722 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncg5b5/robots_as_coworkers_the_next_step_in_humanmachine/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncg5b5/robots_as_coworkers_the_next_step_in_humanmachine/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncg5b5</id><link href=\"https://www.reddit.com/r/automation/comments/1ncg5b5/robots_as_coworkers_the_next_step_in_humanmachine/\" /><updated>2025-09-09T11:20:26+00:00</updated><published>2025-09-09T11:20:26+00:00</published><title>Robots as Co-Workers: The Next Step in Human-Machine Collaboration</title></entry><entry><author><name>/u/Forsaken_Passenger80</name><uri>https://www.reddit.com/user/Forsaken_Passenger80</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;table&gt; &lt;tr&gt;&lt;td&gt; &lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncg3so/why_the_model_context_protocol_mcp_is_a_game/&quot;&gt; &lt;img src=&quot;https://preview.redd.it/06sosfi3i4of1.png?width=640&amp;amp;crop=smart&amp;amp;auto=webp&amp;amp;s=12598ee9ba9a3acf6aa4189ac0f5004e433f7c70&quot; alt=&quot;Why the Model Context Protocol MCP is a Game Changer for Building AI Agents&quot; title=&quot;Why the Model Context Protocol MCP is a Game Changer for Building AI Agents&quot; /&gt; &lt;/a&gt; &lt;/td&gt;&lt;td&gt; &lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;When building AI agents, one of the biggest bottlenecks isn’t the intelligence of the model itself it’s the plumbing.Connecting APIs, managing states, orchestrating flows, and integrating tools is where developers often spend most of their time.&lt;/p&gt; &lt;p&gt;Traditionally, if you’re using workflow tools like n8n, you connect multiple nodes together. Like API calls → transformation → GPT → database → Slack → etc. It works, but as the number of steps grows workflow can quickly turn into a tangled web. &lt;/p&gt; &lt;p&gt;Debugging it? Even harder.&lt;/p&gt; &lt;p&gt;This is where the Model Context Protocol (MCP) enters the scene. &lt;/p&gt; &lt;h1&gt;What is MCP?&lt;/h1&gt; &lt;p&gt;The Model Context Protocol is an open standard designed to make AI models directly aware of external tools, data sources, and actions without needing custom-coded “wiring” for every single integration.&lt;/p&gt; &lt;p&gt;Think of MCP as the plug-and-play language between AI agents and the world around them. Instead of manually dragging and connecting nodes in a workflow builder, you describe the available tools/resources once, and the AI agent can decide how to use them in context.&lt;/p&gt; &lt;p&gt;How MCP Helps in Building AI Agents&lt;/p&gt; &lt;p&gt;Reduces Workflow Complexity&lt;/p&gt; &lt;p&gt;No more 20-node chains in n8n just to fetch → transform → send data.&lt;/p&gt; &lt;p&gt;With MCP, you define the capabilities (like CRM API, database) and the agent dynamically chooses how to use them.&lt;/p&gt; &lt;p&gt;True Agentic Behavior&lt;/p&gt; &lt;p&gt;Agents don’t just follow a static workflow they adapt.&lt;/p&gt; &lt;p&gt;Example: Instead of a fixed n8n path, an MCP-aware agent can decide: “If customer data is missing, I’ll fetch it from HubSpot; if it exists, I’ll enrich it with Clearbit; then I’ll send an email.”&lt;/p&gt; &lt;p&gt;Faster Prototyping &amp;amp; Scaling&lt;/p&gt; &lt;p&gt;Building a new integration in n8n requires configuring nodes and mapping fields.&lt;/p&gt; &lt;p&gt;With MCP, once a tool is described, &lt;em&gt;any agent&lt;/em&gt; can use it without extra setup. This drastically shortens the time to go from idea → working agent.&lt;/p&gt; &lt;p&gt;Interoperability Across Ecosystems&lt;/p&gt; &lt;p&gt;Instead of being locked into n8n nodes, Zapier zaps, or custom code, MCP gives you a universal interface.&lt;/p&gt; &lt;p&gt;Your agent can interact with any MCP-compatible tool databases, APIs, or SaaS platforms seamlessly.&lt;/p&gt; &lt;p&gt;Maintainability&lt;/p&gt; &lt;p&gt;Complex n8n workflows break when APIs change or nodes fail.&lt;/p&gt; &lt;p&gt;MCP’s declarative structure makes updates easier adjust the protocol definition, and the agent adapts without redesigning the whole flow.&lt;/p&gt; &lt;p&gt;The future of AI agents is not about wiring endless nodes it’s about giving your models context and autonomy.&lt;/p&gt; &lt;p&gt; If you’re a developer building automations in n8n, Zapier, or custom scripts, it’s time to explore how MCP can make your agents simpler, smarter, and faster to build.&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/Forsaken_Passenger80&quot;&gt; /u/Forsaken_Passenger80 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://i.redd.it/06sosfi3i4of1.png&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncg3so/why_the_model_context_protocol_mcp_is_a_game/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt; &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</content><id>t3_1ncg3so</id><media:thumbnail url=\"https://preview.redd.it/06sosfi3i4of1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=12598ee9ba9a3acf6aa4189ac0f5004e433f7c70\" /><link href=\"https://www.reddit.com/r/automation/comments/1ncg3so/why_the_model_context_protocol_mcp_is_a_game/\" /><updated>2025-09-09T11:18:11+00:00</updated><published>2025-09-09T11:18:11+00:00</published><title>Why the Model Context Protocol MCP is a Game Changer for Building AI Agents</title></entry><entry><author><name>/u/kalladaacademy</name><uri>https://www.reddit.com/user/kalladaacademy</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;table&gt; &lt;tr&gt;&lt;td&gt; &lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncfpaq/automating_image_generation_with_ai_nano_banana/&quot;&gt; &lt;img src=&quot;https://preview.redd.it/857if573e4of1.png?width=640&amp;amp;crop=smart&amp;amp;auto=webp&amp;amp;s=58f1d6e0602a42a179bb10acf9b57a006ad5fbe7&quot; alt=&quot;Automating Image Generation With AI | Nano Banana + n8n Workflow&quot; title=&quot;Automating Image Generation With AI | Nano Banana + n8n Workflow&quot; /&gt; &lt;/a&gt; &lt;/td&gt;&lt;td&gt; &lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;This month I faced a challenge: how to generate and share AI images without relying on multiple tools. Instead of overcomplicating, I built a workflow with &lt;strong&gt;Nano Banana + n8n&lt;/strong&gt;.&lt;/p&gt; &lt;p&gt;Here’s what it does:&lt;/p&gt; &lt;ul&gt; &lt;li&gt;Scrapes prompts and generates images automatically&lt;/li&gt; &lt;li&gt;Sends images straight to Telegram for quick sharing&lt;/li&gt; &lt;li&gt;Stores results in Google Drive for future use&lt;/li&gt; &lt;/ul&gt; &lt;p&gt;I recorded the full tutorial so you can build the same workflow:&lt;br/&gt; 👉 &lt;a href=&quot;https://youtu.be/0s6ZdU1fjc4?utm_source=chatgpt.com&quot;&gt;https://youtu.be/0s6ZdU1fjc4&lt;/a&gt;&lt;/p&gt; &lt;p&gt;I’d love to hear your thoughts. Do you prefer building custom AI workflows, or do you stick to prebuilt SaaS tools?&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/kalladaacademy&quot;&gt; /u/kalladaacademy &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://i.redd.it/857if573e4of1.png&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncfpaq/automating_image_generation_with_ai_nano_banana/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt; &lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;</content><id>t3_1ncfpaq</id><media:thumbnail url=\"https://preview.redd.it/857if573e4of1.png?width=640&amp;crop=smart&amp;auto=webp&amp;s=58f1d6e0602a42a179bb10acf9b57a006ad5fbe7\" /><link href=\"https://www.reddit.com/r/automation/comments/1ncfpaq/automating_image_generation_with_ai_nano_banana/\" /><updated>2025-09-09T10:56:37+00:00</updated><published>2025-09-09T10:56:37+00:00</published><title>Automating Image Generation With AI | Nano Banana + n8n Workflow</title></entry><entry><author><name>/u/BrightCook5861</name><uri>https://www.reddit.com/user/BrightCook5861</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;Lately I’ve been seeing tools promoting “Vibe Marketing”, where AI writes supposedly high-reply, personalized emails.&lt;/p&gt; &lt;p&gt;Honestly, I think human emails still get better responses.&lt;/p&gt; &lt;p&gt;Would you ever fully rely on AI to send emails? How good would it have to be before you’d trust it?&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/BrightCook5861&quot;&gt; /u/BrightCook5861 &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncezrd/can_you_trust_ai_to_write_your_emails_fully/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncezrd/can_you_trust_ai_to_write_your_emails_fully/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncezrd</id><link href=\"https://www.reddit.com/r/automation/comments/1ncezrd/can_you_trust_ai_to_write_your_emails_fully/\" /><updated>2025-09-09T10:15:09+00:00</updated><published>2025-09-09T10:15:09+00:00</published><title>Can You Trust AI to Write Your Emails fully?</title></entry><entry><author><name>/u/agent_for_everything</name><uri>https://www.reddit.com/user/agent_for_everything</uri></author><category term=\"automation\" label=\"r/automation\"/><content type=\"html\">&lt;!-- SC_OFF --&gt;&lt;div class=&quot;md&quot;&gt;&lt;p&gt;open-source models are getting better, Grok 2.5 is out there, GPT models are more accessible, and smaller models are emerging. So, the question is: &lt;/p&gt; &lt;p&gt;are you sticking to proprietary models from OpenAI or Google? Or have you embraced open-source models for building your agents? What’s your reasoning behind choosing one over the other, especially when it comes to scalability and performance?&lt;/p&gt; &lt;/div&gt;&lt;!-- SC_ON --&gt; &amp;#32; submitted by &amp;#32; &lt;a href=&quot;https://www.reddit.com/user/agent_for_everything&quot;&gt; /u/agent_for_everything &lt;/a&gt; &lt;br/&gt; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncewdn/building_with_opensource_models_or_sticking_to/&quot;&gt;[link]&lt;/a&gt;&lt;/span&gt; &amp;#32; &lt;span&gt;&lt;a href=&quot;https://www.reddit.com/r/automation/comments/1ncewdn/building_with_opensource_models_or_sticking_to/&quot;&gt;[comments]&lt;/a&gt;&lt;/span&gt;</content><id>t3_1ncewdn</id><link href=\"https://www.reddit.com/r/automation/comments/1ncewdn/building_with_opensource_models_or_sticking_to/\" /><updated>2025-09-09T10:09:28+00:00</updated><published>2025-09-09T10:09:28+00:00</published><title>building with open-source models or sticking to proprietary solutions</title></entry></feed>"
+        }
+      }
+    ],
+    "Edit Fields": [
+      {
+        "json": {
+          "title": "newest submissions : automation",
+          "author": "/u/laurusbaurus",
+          "link": "[{\"rel\":\"self\",\"href\":\"https://www.reddit.com/r/automation/new/.rss\",\"type\":\"application/atom+xml\"},{\"rel\":\"alternate\",\"href\":\"https://www.reddit.com/r/automation/new/\",\"type\":\"text/html\"}]",
+          "timestamp": "2025-09-09T19:53:33+00:00"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Replace Me",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ca931623-7410-4cf1-93c9-9ace833a7736",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9e9f890337e5b07d51f523ca29d6213c895affd75db9f5d33c4a82953c8153c8"
+  },
+  "id": "QCEvmpTgvRTPkp9P",
+  "tags": []
+}
