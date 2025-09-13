@@ -1,0 +1,435 @@
+{
+  "name": "Creative Writer",
+  "nodes": [
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "Write 5 ad variations (each ≤90 characters) for \"Acme Phone Case\".\nInclude different tones: energetic, witty, urgent, trustworthy, friendly.\nReturn as a JSON array of texts only.\n"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        368,
+        192
+      ],
+      "id": "8068cfa8-43e3-472b-9d56-2a0ea36221a1",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "meqR246Wrcxh1b0l",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: JSON.parse($json[\"body\"])\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        288
+      ],
+      "id": "4413846b-1bd6-470b-a8a6-fc3878396a14",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "31813e8d-c392-4c11-8aab-76158d174808",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -304,
+        288
+      ],
+      "id": "c720c534-daf0-4bab-b231-b656a8d3f93b",
+      "name": "Webhook",
+      "webhookId": "31813e8d-c392-4c11-8aab-76158d174808"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d4505bd9-af3e-4734-af80-fb4cb5ef2266",
+              "leftValue": "={{ $json.mode }}",
+              "rightValue": "generate",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        144,
+        288
+      ],
+      "id": "e86a9632-5773-44d9-872b-fe152295d0d4",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst ads = items[0]?.json?.content?.parts[0]?.text\n  .split(\"\\n\")\n  .filter((x) => x.trim());\nreturn ads.map((ad) => ({ json: { ad_text: ad.trim(), times_shown: 0 } }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        192
+      ],
+      "id": "8c7e5ab1-96af-4445-98e9-ac8d43bc16ae",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1qBGN7j_gxd_NVQdFYS6--sOlTfdpwlKenIg0BSr31oM",
+          "mode": "list",
+          "cachedResultName": "google_adds",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qBGN7j_gxd_NVQdFYS6--sOlTfdpwlKenIg0BSr31oM/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1qBGN7j_gxd_NVQdFYS6--sOlTfdpwlKenIg0BSr31oM/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ad_text": "={{ $json.ad_text }}",
+            "times_shown": "={{ $json.times_shown }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ad_text",
+              "displayName": "ad_text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "times_shown",
+              "displayName": "times_shown",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        944,
+        192
+      ],
+      "id": "936419c1-0fb3-4858-b338-05b2977ae1f3",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ZExetnsx7O3yew0G",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        352,
+        384
+      ],
+      "id": "36f40a1e-9dc3-487a-be43-3e7523079ac6",
+      "name": "No Operation, do nothing"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "aqib12.app.n8n.cloud",
+            "user-agent": "PostmanRuntime/7.45.0",
+            "content-length": "78",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "111.68.99.90",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "PK",
+            "cf-ray": "97e6ccd0e42c02c6-HKG",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "text/plain",
+            "postman-token": "4d174422-5067-4c17-824b-2a7bb1c4755b",
+            "x-forwarded-for": "111.68.99.90, 162.158.193.185",
+            "x-forwarded-host": "aqib12.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-63-757945c69-ks4x2",
+            "x-is-trusted": "yes",
+            "x-real-ip": "111.68.99.90"
+          },
+          "params": {},
+          "query": {},
+          "body": "{\r\n  \"mode\": \"generate\",\r\n  \"input\": \"Write an ad for my new coffee shop\"\r\n}\r\n",
+          "webhookUrl": "https://aqib12.app.n8n.cloud/webhook-test/31813e8d-c392-4c11-8aab-76158d174808",
+          "executionMode": "test"
+        }
+      }
+    ],
+    "Code in JavaScript": [
+      {
+        "json": {
+          "mode": "generate",
+          "input": "Write an ad for my new coffee shop"
+        }
+      }
+    ],
+    "Message a model": [
+      {
+        "json": {
+          "content": {
+            "parts": [
+              {
+                "text": "```json\n[\n  \"Acme Phone Case: Protect your tech with flair!\",\n  \"Case closed on boring phone protection. Acme!\",\n  \"Uh oh! Drop your phone? Get an Acme case NOW!\",\n  \"Acme Phone Case: Built tough, reliable protection.\",\n  \"Your phone deserves an Acme! Super stylish & safe.\"\n]\n```"
+              }
+            ],
+            "role": "model"
+          },
+          "finishReason": "STOP",
+          "index": 0
+        }
+      }
+    ],
+    "Code in JavaScript1": [
+      {
+        "json": {
+          "ad_text": "```json",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "[",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "\"Acme Phone Case: Protect your tech with flair!\",",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "\"Case closed on boring phone protection. Acme!\",",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "\"Uh oh! Drop your phone? Get an Acme case NOW!\",",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "\"Acme Phone Case: Built tough, reliable protection.\",",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "\"Your phone deserves an Acme! Super stylish & safe.\"",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "]",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "```",
+          "times_shown": 0
+        }
+      }
+    ],
+    "Append row in sheet": [
+      {
+        "json": {
+          "ad_text": "```json",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "[",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "\"Acme Phone Case: Protect your tech with flair!\",",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "\"Case closed on boring phone protection. Acme!\",",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "\"Uh oh! Drop your phone? Get an Acme case NOW!\",",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "\"Acme Phone Case: Built tough, reliable protection.\",",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "\"Your phone deserves an Acme! Super stylish & safe.\"",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "]",
+          "times_shown": 0
+        }
+      },
+      {
+        "json": {
+          "ad_text": "```",
+          "times_shown": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "65ecb76c-0dde-42cd-b949-d2ddc9c101d5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9e9f890337e5b07d51f523ca29d6213c895affd75db9f5d33c4a82953c8153c8"
+  },
+  "id": "X8A1lkJmKJLTpbqW",
+  "tags": []
+}
