@@ -1,0 +1,1276 @@
+{
+  "name": "Review Synthesizer",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fbd35243-0679-4d5e-98f0-8c955a4c522b",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -48
+      ],
+      "id": "bc85ac9a-7656-4b46-b642-984015f650ef",
+      "name": "Webhook",
+      "webhookId": "fbd35243-0679-4d5e-98f0-8c955a4c522b"
+    },
+    {
+      "parameters": {
+        "jsCode": "// input: single item from webhook\nconst body = items[0].json;\nconst product_id = body.product_id || null;\nconst reviews = body.reviews || [];\nconst out = [];\n\nfunction splitSentences(text){\n  if(!text) return [];\n  // crude sentence splitter — works well for short reviews\n  const s = text.replace(/\\n+/g,' ').trim();\n  return s.match(/[^.!?]+[.!?]*/g) || [s];\n}\n\nfor(const r of reviews){\n  const sentences = splitSentences(r.text || \"\");\n  for(const s of sentences){\n    out.push({ json: {\n      product_id,\n      review_id: r.id,\n      rating: r.rating,\n      original_review: r.text,\n      sentence: s.trim()\n    }});\n  }\n}\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -48
+      ],
+      "id": "cf262a52-f41a-46fc-8905-4729bb9d261d",
+      "name": "Normalize & explode reviews into sentence items"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse raw body if it's a string, otherwise pass through\nconst raw = items[0].json.body ?? items[0].json; // support both shapes\nlet parsed;\ntry {\n  parsed = (typeof raw === 'string') ? JSON.parse(raw.trim()) : raw;\n} catch (err) {\n  throw new Error('Webhook body is not valid JSON: ' + err.message);\n}\nreturn [{ json: parsed }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -48
+      ],
+      "id": "f78685d1-a490-45be-822b-2c07c08406c7",
+      "name": "Parse the plain text inside n8n"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me",
+      "typeVersion": 1,
+      "position": [
+        448,
+        144
+      ],
+      "id": "8ccf8274-ddd4-4128-8c86-e6deda5f6041"
+    },
+    {
+      "parameters": {
+        "batchSize": 8,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        672,
+        48
+      ],
+      "id": "d56b6d52-3b3e-4841-89e0-37afa1a4842b",
+      "name": "control rate"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-inference.huggingface.co/models/facebook/bart-large-mnli",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": \"{{ $json.sentence }}\",\n  \"parameters\": {\n    \"candidate_labels\": [\"pro\",\"con\",\"neutral\"]\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        896,
+        128
+      ],
+      "id": "84b03ef5-8d4d-4792-9d77-3f529b1123dd",
+      "name": "Zero-shot classification"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items\n  .filter(r =>\n    typeof r.json.sequence === 'string' &&\n    Array.isArray(r.json.labels) &&\n    Array.isArray(r.json.scores) &&\n    r.json.labels.length > 0 &&\n    r.json.scores.length > 0\n  )\n  .map(r => {\n    const seq = r.json.sequence;\n    const labels = r.json.labels;\n    const scores = r.json.scores;\n    const idx = scores.indexOf(Math.max(...scores));\n    return {\n      json: {\n        sentence: seq,\n        label: labels[idx],\n        label_score: scores[idx],\n      }\n    };\n  });"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1360,
+        80
+      ],
+      "id": "4cf416c0-5e7d-451c-92b0-433fd0e023e9",
+      "name": "Normalize classifier response"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst groups = {};\n\nfor (const r of items) {\n  // Skip entries that don't have a review_id or sentence\n  if (!r.json.review_id || !r.json.sentence) {\n    continue;\n  }\n\n  const id = r.json.review_id;\n  if (!groups[id]) {\n    groups[id] = {\n      product_id: r.json.product_id,\n      review_id: id,\n      rating: r.json.rating,\n      original_review: r.json.original_review,\n      pros: [],\n      cons: [],\n      neutral: [],\n    };\n  }\n\n  if (r.json.label === \"pro\") groups[id].pros.push(r.json.sentence);\n  else if (r.json.label === \"con\") groups[id].cons.push(r.json.sentence);\n  else groups[id].neutral.push(r.json.sentence);\n}\n\nreturn Object.values(groups).map(x => ({ json: x }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        80
+      ],
+      "id": "c58ac4ba-187f-4474-8f9b-7085b363b272",
+      "name": "Aggregate sentences back to per-review pros/cons"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1120,
+        80
+      ],
+      "id": "79e86fea-5618-409a-bfda-9a25ef7aef16",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "batchSize": 6,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        2016,
+        144
+      ],
+      "id": "477c8357-ec2f-4a4a-a8f4-6f14482a6244",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "name": "Replace Me1",
+      "typeVersion": 1,
+      "position": [
+        1792,
+        240
+      ],
+      "id": "afd2cd55-cdb3-428f-a7c9-d1c140d83d0f"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"inputs\": \"{{$json.pros.join(' ') + ' ' + $json.cons.join(' ')}}\",\n  \"parameters\": {\"max_length\":60,\"min_length\":15,\"do_sample\":false}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        160
+      ],
+      "id": "9b793839-764c-41b6-943d-896f21d5f34c",
+      "name": "Summarization (per-review or per-product)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const out = [];\nfor(const it of items){\n  // HF may return string or {summary_text: \"...\"} or an array\n  const r = it.json;\n  let summary = \"\";\n  if(typeof r === \"string\") summary = r;\n  else if(r.summary_text) summary = r.summary_text;\n  else if(Array.isArray(r) && r[0]?.summary_text) summary = r[0].summary_text;\n  // If HTTP response content is nested in other fields, adapt accordingly\n  out.push({ json: {\n    product_id: it.json.product_id || it.json[0]?.product_id,\n    review_id: it.json.review_id || it.json[0]?.review_id,\n    pros: it.json.pros || it.json[0]?.pros || [],\n    cons: it.json.cons || it.json[0]?.cons || [],\n    neutral: it.json.neutral || it.json[0]?.neutral || [],\n    summary: summary || (it.json.original_review || \"\")\n  }});\n}\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2688,
+        160
+      ],
+      "id": "72c009d3-76a6-4ac0-b5cc-57b59baf2d57",
+      "name": "Parse summary and attach to review"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Two inputs should be connected to this Function node:\n// 1. Original split reviews (with product_id, review_id, sentence, etc.)\n// 2. Normalized classifier response (sentence, label, label_score)\n\nconst originals = $items(\"Normalize & explode reviews into sentence items\");   // <-- match the *actual* node name exactly\nconst classified = $items(\"Normalize classifier response\");\n\n// Build a lookup by sentence\nconst lookup = {};\nclassified.forEach(c => {\n  lookup[c.json.sentence] = {\n    label: c.json.label,\n    label_score: c.json.label_score\n  };\n});\n\n// Merge\nreturn originals.map(o => {\n  const sentence = o.json.sentence;\n  const classification = lookup[sentence] || { label: \"neutral\", label_score: 0 };\n  return {\n    json: {\n      product_id: o.json.product_id,\n      review_id: o.json.review_id,\n      rating: o.json.rating,\n      original_review: o.json.original_review,\n      sentence: sentence,\n      label: classification.label,\n      label_score: classification.label_score\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1568,
+        80
+      ],
+      "id": "cd903e5a-ffc1-4dcb-bf32-0f149953c63e",
+      "name": "Merge normalized classifier output with the original review sentences"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Two inputs should be connected to this Function node:\n// 1. The per-review objects (with pros, cons, etc.)\n// 2. The summaries returned by HuggingFace (summary_text)\n\nconst reviews = $items(\"Aggregate sentences back to per-review pros/cons\");  // <-- node where you grouped pros/cons/neutral\nconst summaries = $items(\"Summarization (per-review or per-product)\");   // <-- HuggingFace summarization node\n\n// Make sure they line up 1:1 by index\nreturn reviews.map((rev, i) => {\n  const summary = summaries[i]?.json.summary_text || \"\";\n  return {\n    json: {\n      product_id: rev.json.product_id,\n      review_id: rev.json.review_id,\n      rating: rev.json.rating,\n      original_review: rev.json.original_review,\n      pros: rev.json.pros,\n      cons: rev.json.cons,\n      neutral: rev.json.neutral,\n      summary: summary\n    }\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2464,
+        160
+      ],
+      "id": "944fdfd4-7446-41bf-aac7-56af7aefb2ea",
+      "name": "Attach the summary back to its review"
+    },
+    {
+      "parameters": {
+        "jsCode": "const stop = new Set([\"the\",\"and\",\"a\",\"is\",\"it\",\"of\",\"to\",\"in\",\"for\",\"with\",\"on\",\"this\",\"that\",\"I\",\"we\",\"you\"]);\nfunction topKeywords(arr, n=5){\n  const freq = {};\n  for(const s of arr){\n    for(const w of s.toLowerCase().split(/\\W+/)){\n      if(!w || stop.has(w) || w.length<3) continue;\n      freq[w] = (freq[w]||0)+1;\n    }\n  }\n  return Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,n).map(x=>x[0]);\n}\n\nconst out=[];\nfor(const it of items){\n  const pros = it.json.pros || [];\n  const cons = it.json.cons || [];\n  const candidates = topKeywords(pros.concat(cons), 5);\n  const faqs = candidates.map(k => {\n    const hasPro = pros.join(' ').toLowerCase().includes(k);\n    const hasCon = cons.join(' ').toLowerCase().includes(k);\n    let answer = \"\";\n    if(hasPro && !hasCon) answer = `Users report positive experience with ${k}.`;\n    else if(!hasPro && hasCon) answer = `Some users report problems with ${k}.`;\n    else if(hasPro && hasCon) answer = `Mixed feedback on ${k}: positives include ${pros.slice(0,2).join(' ')}; complaints include ${cons.slice(0,2).join(' ')}.`;\n    else answer = `Information about ${k} is limited in reviews.`;\n    return { q: `How is ${k} of this product?`, a: answer };\n  });\n  // if no candidates, add fallback FAQ\n  if(faqs.length===0){\n    faqs.push({q:\"What do customers like about this product?\", a: pros.length? pros.join(' ') : \"Customers praise the product quality.\"});\n    faqs.push({q:\"What issues do customers report?\", a: cons.length? cons.join(' ') : \"No consistent issues reported.\"});\n  }\n  it.json.faqs = faqs;\n  out.push(it);\n}\nreturn out;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2912,
+        160
+      ],
+      "id": "8d4ebb67-a0fe-4012-9af6-abb4ac9aec78",
+      "name": "Generate FAQs (heuristic, free & safe)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const results = [];\nfor(const it of items){\n  const faqs = it.json.faqs || [];\n  const mainEntity = faqs.map(f => ({\n    \"@type\": \"Question\",\n    \"name\": f.q,\n    \"acceptedAnswer\": {\n      \"@type\": \"Answer\",\n      \"text\": f.a\n    }\n  }));\n  const jsonLd = {\n    \"@context\": \"https://schema.org\",\n    \"@type\": \"FAQPage\",\n    \"mainEntity\": mainEntity\n  };\n  results.push({ json: {\n    product_id: it.json.product_id,\n    review_id: it.json.review_id,\n    pros: it.json.pros,\n    cons: it.json.cons,\n    summary: it.json.summary,\n    faqs,\n    faq_jsonld: jsonLd,\n    faq_script: `<script type=\"application/ld+json\">${JSON.stringify(jsonLd)}</script>`\n  }});\n}\nreturn results;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3136,
+        160
+      ],
+      "id": "97a99070-a6ea-4736-a1de-c83425f50e79",
+      "name": "Build FAQ JSON-LD (Google SEO)"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1mD8aiNYbVHplG9IGVFkWSfXfXl2aAHIkYcJvdaMC5Ww",
+          "mode": "list",
+          "cachedResultName": "review synthesizer",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mD8aiNYbVHplG9IGVFkWSfXfXl2aAHIkYcJvdaMC5Ww/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1mD8aiNYbVHplG9IGVFkWSfXfXl2aAHIkYcJvdaMC5Ww/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "product_id": "={{ $json.product_id }}",
+            "review_id": "={{ $json.review_id }}",
+            "summary": "={{ $json.summary }}",
+            " faq_script": "={{ $json.faqs }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "product_id",
+              "displayName": "product_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_id",
+              "displayName": "review_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": " faq_script",
+              "displayName": " faq_script",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        3360,
+        160
+      ],
+      "id": "e51a8126-3916-4ba4-af9d-3af9b112c9de",
+      "name": "Output — Save or return",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ZExetnsx7O3yew0G",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "Input Parsing (Webhook → Split Reviews)]",
+        "height": 544,
+        "width": 656,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "1305128d-4279-4a4f-8588-f7b2e149d65b",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "🤖 Classification (HuggingFace → Normalize → Merge)",
+        "height": 544,
+        "width": 1088,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        624,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "3a9ccab8-9a49-4047-ba0e-fc5bc84fe43a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "📊 Aggregation (Group pros/cons → Summarization)",
+        "height": 544,
+        "width": 672
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1728,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "77ac9060-7a5c-4637-a031-3444c51f7565",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "📝 Output (Build FAQ schema → Return via Webhook)",
+        "height": 544,
+        "width": 1168,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2416,
+        -128
+      ],
+      "typeVersion": 1,
+      "id": "f1a8bb2d-d5d3-4e77-b54f-ef1c680836ef",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "aqib12.app.n8n.cloud",
+            "user-agent": "PostmanRuntime/7.46.0",
+            "content-length": "222",
+            "accept": "*/*",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "111.68.99.91",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "PK",
+            "cf-ray": "97ee7ad7146e06e8-HKG",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "text/plain",
+            "postman-token": "29e2c693-0941-4a67-be7c-e711f4ecc82c",
+            "x-forwarded-for": "111.68.99.91, 162.158.193.185",
+            "x-forwarded-host": "aqib12.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-63-757945c69-4ffwv",
+            "x-is-trusted": "yes",
+            "x-real-ip": "111.68.99.91"
+          },
+          "params": {},
+          "query": {},
+          "body": "{\r\n  \"product_id\":\"SKU-123\",\r\n  \"reviews\":[\r\n    {\"id\":\"r1\",\"rating\":5,\"text\":\"Battery lasts forever. The screen is dim sometimes.\"},\r\n    {\"id\":\"r2\",\"rating\":2,\"text\":\"Camera is poor and the app crashes a lot.\"}\r\n  ]\r\n}\r\n",
+          "webhookUrl": "https://aqib12.app.n8n.cloud/webhook-test/fbd35243-0679-4d5e-98f0-8c955a4c522b",
+          "executionMode": "test"
+        }
+      }
+    ],
+    "Normalize & explode reviews into sentence items": [
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "rating": 5,
+          "original_review": "Battery lasts forever. The screen is dim sometimes.",
+          "sentence": "Battery lasts forever."
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "rating": 5,
+          "original_review": "Battery lasts forever. The screen is dim sometimes.",
+          "sentence": "The screen is dim sometimes."
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r2",
+          "rating": 2,
+          "original_review": "Camera is poor and the app crashes a lot.",
+          "sentence": "Camera is poor and the app crashes a lot."
+        }
+      }
+    ],
+    "Parse the plain text inside n8n": [
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "reviews": [
+            {
+              "id": "r1",
+              "rating": 5,
+              "text": "Battery lasts forever. The screen is dim sometimes."
+            },
+            {
+              "id": "r2",
+              "rating": 2,
+              "text": "Camera is poor and the app crashes a lot."
+            }
+          ]
+        }
+      }
+    ],
+    "Zero-shot classification": [
+      {
+        "json": {
+          "sequence": "Battery lasts forever.",
+          "labels": [
+            "pro",
+            "neutral",
+            "con"
+          ],
+          "scores": [
+            0.7486009001731873,
+            0.14413243532180786,
+            0.10726667195558548
+          ]
+        }
+      },
+      {
+        "json": {
+          "sequence": "The screen is dim sometimes.",
+          "labels": [
+            "con",
+            "neutral",
+            "pro"
+          ],
+          "scores": [
+            0.4607967734336853,
+            0.2922948896884918,
+            0.24690838158130646
+          ]
+        }
+      },
+      {
+        "json": {
+          "sequence": "Camera is poor and the app crashes a lot.",
+          "labels": [
+            "con",
+            "neutral",
+            "pro"
+          ],
+          "scores": [
+            0.9527350068092346,
+            0.024096088483929634,
+            0.02316889353096485
+          ]
+        }
+      }
+    ],
+    "Merge": [
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "rating": 5,
+          "original_review": "Battery lasts forever. The screen is dim sometimes.",
+          "sentence": "Battery lasts forever."
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "rating": 5,
+          "original_review": "Battery lasts forever. The screen is dim sometimes.",
+          "sentence": "The screen is dim sometimes."
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r2",
+          "rating": 2,
+          "original_review": "Camera is poor and the app crashes a lot.",
+          "sentence": "Camera is poor and the app crashes a lot."
+        }
+      },
+      {
+        "json": {
+          "sequence": "Battery lasts forever.",
+          "labels": [
+            "pro",
+            "neutral",
+            "con"
+          ],
+          "scores": [
+            0.7486009001731873,
+            0.14413243532180786,
+            0.10726667195558548
+          ]
+        }
+      },
+      {
+        "json": {
+          "sequence": "The screen is dim sometimes.",
+          "labels": [
+            "con",
+            "neutral",
+            "pro"
+          ],
+          "scores": [
+            0.4607967734336853,
+            0.2922948896884918,
+            0.24690838158130646
+          ]
+        }
+      },
+      {
+        "json": {
+          "sequence": "Camera is poor and the app crashes a lot.",
+          "labels": [
+            "con",
+            "neutral",
+            "pro"
+          ],
+          "scores": [
+            0.9527350068092346,
+            0.024096088483929634,
+            0.02316889353096485
+          ]
+        }
+      }
+    ],
+    "Normalize classifier response": [
+      {
+        "json": {
+          "sentence": "Battery lasts forever.",
+          "label": "pro",
+          "label_score": 0.7486009001731873
+        }
+      },
+      {
+        "json": {
+          "sentence": "The screen is dim sometimes.",
+          "label": "con",
+          "label_score": 0.4607967734336853
+        }
+      },
+      {
+        "json": {
+          "sentence": "Camera is poor and the app crashes a lot.",
+          "label": "con",
+          "label_score": 0.9527350068092346
+        }
+      }
+    ],
+    "Merge normalized classifier output with the original review sentences": [
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "rating": 5,
+          "original_review": "Battery lasts forever. The screen is dim sometimes.",
+          "sentence": "Battery lasts forever.",
+          "label": "pro",
+          "label_score": 0.7486009001731873
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "rating": 5,
+          "original_review": "Battery lasts forever. The screen is dim sometimes.",
+          "sentence": "The screen is dim sometimes.",
+          "label": "con",
+          "label_score": 0.4607967734336853
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r2",
+          "rating": 2,
+          "original_review": "Camera is poor and the app crashes a lot.",
+          "sentence": "Camera is poor and the app crashes a lot.",
+          "label": "con",
+          "label_score": 0.9527350068092346
+        }
+      }
+    ],
+    "Aggregate sentences back to per-review pros/cons": [
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "rating": 5,
+          "original_review": "Battery lasts forever. The screen is dim sometimes.",
+          "pros": [
+            "Battery lasts forever."
+          ],
+          "cons": [
+            "The screen is dim sometimes."
+          ],
+          "neutral": []
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r2",
+          "rating": 2,
+          "original_review": "Camera is poor and the app crashes a lot.",
+          "pros": [],
+          "cons": [
+            "Camera is poor and the app crashes a lot."
+          ],
+          "neutral": []
+        }
+      }
+    ],
+    "Summarization (per-review or per-product)": [
+      {
+        "json": {
+          "summary_text": "The screen is dim sometimes. The battery lasts forever. The screen isdim sometimes. It's not always bright."
+        }
+      },
+      {
+        "json": {
+          "summary_text": "The app crashes a lot. Camera is poor and the app crashed a lot, too. It's a shame."
+        }
+      }
+    ],
+    "Attach the summary back to its review": [
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "rating": 5,
+          "original_review": "Battery lasts forever. The screen is dim sometimes.",
+          "pros": [
+            "Battery lasts forever."
+          ],
+          "cons": [
+            "The screen is dim sometimes."
+          ],
+          "neutral": [],
+          "summary": "The screen is dim sometimes. The battery lasts forever. The screen isdim sometimes. It's not always bright."
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r2",
+          "rating": 2,
+          "original_review": "Camera is poor and the app crashes a lot.",
+          "pros": [],
+          "cons": [
+            "Camera is poor and the app crashes a lot."
+          ],
+          "neutral": [],
+          "summary": "The app crashes a lot. Camera is poor and the app crashed a lot, too. It's a shame."
+        }
+      }
+    ],
+    "Parse summary and attach to review": [
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "pros": [
+            "Battery lasts forever."
+          ],
+          "cons": [
+            "The screen is dim sometimes."
+          ],
+          "neutral": [],
+          "summary": "Battery lasts forever. The screen is dim sometimes."
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r2",
+          "pros": [],
+          "cons": [
+            "Camera is poor and the app crashes a lot."
+          ],
+          "neutral": [],
+          "summary": "Camera is poor and the app crashes a lot."
+        }
+      }
+    ],
+    "Generate FAQs (heuristic, free & safe)": [
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "pros": [
+            "Battery lasts forever."
+          ],
+          "cons": [
+            "The screen is dim sometimes."
+          ],
+          "neutral": [],
+          "summary": "Battery lasts forever. The screen is dim sometimes.",
+          "faqs": [
+            {
+              "q": "How is battery of this product?",
+              "a": "Users report positive experience with battery."
+            },
+            {
+              "q": "How is lasts of this product?",
+              "a": "Users report positive experience with lasts."
+            },
+            {
+              "q": "How is forever of this product?",
+              "a": "Users report positive experience with forever."
+            },
+            {
+              "q": "How is screen of this product?",
+              "a": "Some users report problems with screen."
+            },
+            {
+              "q": "How is dim of this product?",
+              "a": "Some users report problems with dim."
+            }
+          ]
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r2",
+          "pros": [],
+          "cons": [
+            "Camera is poor and the app crashes a lot."
+          ],
+          "neutral": [],
+          "summary": "Camera is poor and the app crashes a lot.",
+          "faqs": [
+            {
+              "q": "How is camera of this product?",
+              "a": "Some users report problems with camera."
+            },
+            {
+              "q": "How is poor of this product?",
+              "a": "Some users report problems with poor."
+            },
+            {
+              "q": "How is app of this product?",
+              "a": "Some users report problems with app."
+            },
+            {
+              "q": "How is crashes of this product?",
+              "a": "Some users report problems with crashes."
+            },
+            {
+              "q": "How is lot of this product?",
+              "a": "Some users report problems with lot."
+            }
+          ]
+        }
+      }
+    ],
+    "Build FAQ JSON-LD (Google SEO)": [
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "pros": [
+            "Battery lasts forever."
+          ],
+          "cons": [
+            "The screen is dim sometimes."
+          ],
+          "summary": "Battery lasts forever. The screen is dim sometimes.",
+          "faqs": [
+            {
+              "q": "How is battery of this product?",
+              "a": "Users report positive experience with battery."
+            },
+            {
+              "q": "How is lasts of this product?",
+              "a": "Users report positive experience with lasts."
+            },
+            {
+              "q": "How is forever of this product?",
+              "a": "Users report positive experience with forever."
+            },
+            {
+              "q": "How is screen of this product?",
+              "a": "Some users report problems with screen."
+            },
+            {
+              "q": "How is dim of this product?",
+              "a": "Some users report problems with dim."
+            }
+          ],
+          "faq_jsonld": {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How is battery of this product?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Users report positive experience with battery."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is lasts of this product?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Users report positive experience with lasts."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is forever of this product?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Users report positive experience with forever."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is screen of this product?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Some users report problems with screen."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is dim of this product?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Some users report problems with dim."
+                }
+              }
+            ]
+          },
+          "faq_script": "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"FAQPage\",\"mainEntity\":[{\"@type\":\"Question\",\"name\":\"How is battery of this product?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Users report positive experience with battery.\"}},{\"@type\":\"Question\",\"name\":\"How is lasts of this product?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Users report positive experience with lasts.\"}},{\"@type\":\"Question\",\"name\":\"How is forever of this product?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Users report positive experience with forever.\"}},{\"@type\":\"Question\",\"name\":\"How is screen of this product?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Some users report problems with screen.\"}},{\"@type\":\"Question\",\"name\":\"How is dim of this product?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Some users report problems with dim.\"}}]}</script>"
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r2",
+          "pros": [],
+          "cons": [
+            "Camera is poor and the app crashes a lot."
+          ],
+          "summary": "Camera is poor and the app crashes a lot.",
+          "faqs": [
+            {
+              "q": "How is camera of this product?",
+              "a": "Some users report problems with camera."
+            },
+            {
+              "q": "How is poor of this product?",
+              "a": "Some users report problems with poor."
+            },
+            {
+              "q": "How is app of this product?",
+              "a": "Some users report problems with app."
+            },
+            {
+              "q": "How is crashes of this product?",
+              "a": "Some users report problems with crashes."
+            },
+            {
+              "q": "How is lot of this product?",
+              "a": "Some users report problems with lot."
+            }
+          ],
+          "faq_jsonld": {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How is camera of this product?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Some users report problems with camera."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is poor of this product?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Some users report problems with poor."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is app of this product?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Some users report problems with app."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is crashes of this product?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Some users report problems with crashes."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How is lot of this product?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Some users report problems with lot."
+                }
+              }
+            ]
+          },
+          "faq_script": "<script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"FAQPage\",\"mainEntity\":[{\"@type\":\"Question\",\"name\":\"How is camera of this product?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Some users report problems with camera.\"}},{\"@type\":\"Question\",\"name\":\"How is poor of this product?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Some users report problems with poor.\"}},{\"@type\":\"Question\",\"name\":\"How is app of this product?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Some users report problems with app.\"}},{\"@type\":\"Question\",\"name\":\"How is crashes of this product?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Some users report problems with crashes.\"}},{\"@type\":\"Question\",\"name\":\"How is lot of this product?\",\"acceptedAnswer\":{\"@type\":\"Answer\",\"text\":\"Some users report problems with lot.\"}}]}</script>"
+        }
+      }
+    ],
+    "Output — Save or return": [
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r1",
+          "summary": "Battery lasts forever. The screen is dim sometimes.",
+          " faq_script": [
+            {
+              "q": "How is battery of this product?",
+              "a": "Users report positive experience with battery."
+            },
+            {
+              "q": "How is lasts of this product?",
+              "a": "Users report positive experience with lasts."
+            },
+            {
+              "q": "How is forever of this product?",
+              "a": "Users report positive experience with forever."
+            },
+            {
+              "q": "How is screen of this product?",
+              "a": "Some users report problems with screen."
+            },
+            {
+              "q": "How is dim of this product?",
+              "a": "Some users report problems with dim."
+            }
+          ]
+        }
+      },
+      {
+        "json": {
+          "product_id": "SKU-123",
+          "review_id": "r2",
+          "summary": "Camera is poor and the app crashes a lot.",
+          " faq_script": [
+            {
+              "q": "How is camera of this product?",
+              "a": "Some users report problems with camera."
+            },
+            {
+              "q": "How is poor of this product?",
+              "a": "Some users report problems with poor."
+            },
+            {
+              "q": "How is app of this product?",
+              "a": "Some users report problems with app."
+            },
+            {
+              "q": "How is crashes of this product?",
+              "a": "Some users report problems with crashes."
+            },
+            {
+              "q": "How is lot of this product?",
+              "a": "Some users report problems with lot."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Parse the plain text inside n8n",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse the plain text inside n8n": {
+      "main": [
+        [
+          {
+            "node": "Normalize & explode reviews into sentence items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize & explode reviews into sentence items": {
+      "main": [
+        [
+          {
+            "node": "control rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me": {
+      "main": [
+        [
+          {
+            "node": "control rate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "control rate": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Zero-shot classification",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zero-shot classification": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Normalize classifier response": {
+      "main": [
+        [
+          {
+            "node": "Merge normalized classifier output with the original review sentences",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Normalize classifier response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate sentences back to per-review pros/cons": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Summarization (per-review or per-product)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replace Me1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarization (per-review or per-product)": {
+      "main": [
+        [
+          {
+            "node": "Attach the summary back to its review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge normalized classifier output with the original review sentences": {
+      "main": [
+        [
+          {
+            "node": "Aggregate sentences back to per-review pros/cons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach the summary back to its review": {
+      "main": [
+        [
+          {
+            "node": "Parse summary and attach to review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse summary and attach to review": {
+      "main": [
+        [
+          {
+            "node": "Generate FAQs (heuristic, free & safe)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate FAQs (heuristic, free & safe)": {
+      "main": [
+        [
+          {
+            "node": "Build FAQ JSON-LD (Google SEO)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build FAQ JSON-LD (Google SEO)": {
+      "main": [
+        [
+          {
+            "node": "Output — Save or return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a4574502-075f-4eda-a47c-27690dc3f2ed",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9e9f890337e5b07d51f523ca29d6213c895affd75db9f5d33c4a82953c8153c8"
+  },
+  "id": "wVCp2Kw8F0kIxjcI",
+  "tags": []
+}
